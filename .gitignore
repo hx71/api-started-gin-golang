@@ -1,0 +1,5 @@
+*.exe
+.env
+.DS_Store
+/vendor
+/uploads
