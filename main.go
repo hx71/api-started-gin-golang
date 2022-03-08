@@ -5,6 +5,7 @@ import (
 	"os"
 	"srp-golang/app/controllers"
 	"srp-golang/config"
+	"srp-golang/middleware"
 	"srp-golang/repository"
 	"srp-golang/service"
 
@@ -24,7 +25,8 @@ var (
 	db             *gorm.DB                   = config.SetupConnection()
 	userRepository repository.UserRepository  = repository.NewUserRepository(db)
 	authService    service.AuthService        = service.NewAuthService(userRepository)
-	authController controllers.AuthController = controllers.NewAuthController(authService)
+	authController controllers.AuthController = controllers.NewAuthController(authService, jwtService)
+	jwtService     service.JWTService         = service.NewJWTService(userRepository)
 )
 
 func main() {
@@ -34,8 +36,18 @@ func main() {
 
 	auth := r.Group("api/auth")
 	{
-		// 	auth.POST("/login", authController.Login)
+		auth.POST("/login", authController.Login)
 		auth.POST("/register", authController.Register)
+	}
+
+	rt := r.Group("api", middleware.AuthorizeJWT(jwtService))
+	// rt := r.Group("api")
+	{
+		rt.GET("/ping", func(c *gin.Context) {
+			c.JSON(200, gin.H{
+				"message": "pong",
+			})
+		})
 	}
 
 	r.Run(":" + os.Getenv("APP_PORT"))
