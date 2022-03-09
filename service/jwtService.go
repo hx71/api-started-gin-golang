@@ -2,99 +2,67 @@ package service
 
 import (
 	"fmt"
-	"srp-golang/repository"
+	"os"
 	"time"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/dgrijalva/jwt-go"
 )
 
-// JWTService is a contract of what jwtService can do
+//JWTService is a contract of what jwtService can do
 type JWTService interface {
-	FindByEmails(email string) string
-	ValidateToken(signedToken string) (*jwt.Token, error)
-}
-
-type jwtService struct {
-	secretKey       string
-	issuer          string
-	ExpirationHours int64
-	userRepository  repository.UserRepository
+	GenerateToken(userID string) string
+	ValidateToken(token string) (*jwt.Token, error)
 }
 
 type jwtCustomClaim struct {
-	Email string
+	// UserID string `json:"user_id"`
+	Email string `json:"email"`
 	jwt.StandardClaims
 }
 
-func NewJWTService(userRep repository.UserRepository) JWTService {
+type jwtService struct {
+	secretKey string
+	issuer    string
+}
+
+//NewJWTService method is creates a new instance of JWTService
+func NewJWTService() JWTService {
 	return &jwtService{
-		userRepository: userRep,
+		issuer:    "secret",
+		secretKey: getSecretKey(),
 	}
 }
 
-func (service *jwtService) FindByEmails(email string) string {
-	user := service.userRepository.FindByEmail(email)
+func getSecretKey() string {
+	secretKey := os.Getenv("JWT_SECRET")
+	if secretKey != "" {
+		secretKey = "secret"
+	}
+	return secretKey
+}
+
+func (j *jwtService) GenerateToken(Email string) string {
 	claims := &jwtCustomClaim{
-		Email: user.Email,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: time.Now().Local().Add(time.Hour * time.Duration(service.ExpirationHours)).Unix(),
-			Issuer:    service.issuer,
+		Email,
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().AddDate(1, 0, 0).Unix(),
+			Issuer:    j.issuer,
+			IssuedAt:  time.Now().Unix(),
 		},
 	}
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	signedToken, err := token.SignedString([]byte(service.secretKey))
+	t, err := token.SignedString([]byte(j.secretKey))
 	if err != nil {
 		panic(err)
 	}
-
-	return signedToken
+	return t
 }
 
-func (service *jwtService) ValidateToken(signedToken string) (*jwt.Token, error) {
-	return jwt.Parse(signedToken, func(t_ *jwt.Token) (interface{}, error) {
+func (j *jwtService) ValidateToken(token string) (*jwt.Token, error) {
+	return jwt.Parse(token, func(t_ *jwt.Token) (interface{}, error) {
 		if _, ok := t_.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method %v", t_.Header["alg"])
 		}
-		return []byte(service.secretKey), nil
+		return []byte(j.secretKey), nil
 	})
-
-	// token, err := jwt.ParseWithClaims(
-	// 	signedToken,
-	// 	&jwtCustomClaim{},
-	// 	func(token *jwt.Token) (interface{}, error) {
-	// 		return []byte(service.secretKey), nil
-	// 	},
-	// )
-	// if err != nil {
-	// 	return token, err
-	// }
-
-	// claims, ok := token.Claims.(*jwtCustomClaim)
-	// if !ok {
-	// 	err = errors.New("Couldn't parse claims")
-	// 	return token, err
-	// }
-
-	// if claims.ExpiresAt < time.Now().Local().Unix() {
-	// 	err = errors.New("JWT is expired")
-	// 	return token, err
-	// }
-
-	// return token, err
-
-	// return jwt.Parse(token, func(claims *jwt.Token) (interface{}, error) {
-	// 	token, err := jwt.ParseWithClaims(
-	// 		signedToken,
-	// 		&JwtClaim{},
-	// 		func(token *jwt.Token) (interface{}, error) {
-	// 			return []byte(service.SecretKey), nil
-	// 		},
-	// 	)
-	// 	// 	if _, ok := t_.Method.(*jwt.SigningMethodHMAC); !ok {
-	// 	// 		return nil, fmt.Errorf("Unexpected signing method %v", t_.Header["alg"])
-	// 	// 	}
-	// 	// 	return token, nil
-	// 	// 	// return []byte(service.secretKey), nil
-	// })
 }
