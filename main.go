@@ -24,9 +24,9 @@ func init() {
 var (
 	db             *gorm.DB                   = config.SetupConnection()
 	userRepository repository.UserRepository  = repository.NewUserRepository(db)
+	jwtService     service.JWTService         = service.NewJWTService()
 	authService    service.AuthService        = service.NewAuthService(userRepository)
 	authController controllers.AuthController = controllers.NewAuthController(authService, jwtService)
-	jwtService     service.JWTService         = service.NewJWTService(userRepository)
 )
 
 func main() {
