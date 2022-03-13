@@ -8,6 +8,7 @@ require (
 	github.com/joho/godotenv v1.4.0
 	github.com/mashingan/smapping v0.1.13
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292
+	golang.org/x/sys v0.0.0-20211216021012-1d35b9e2eb4e // indirect
 	gorm.io/driver/postgres v1.3.1
 	gorm.io/gorm v1.23.2
 )
