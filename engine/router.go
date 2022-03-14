@@ -28,7 +28,7 @@ var (
 )
 
 func SetupRouter() *gin.Engine {
-	// defer config.CloseConnection(db)
+	defer config.CloseConnection(db)
 
 	// Gin instance
 	r := gin.Default()
