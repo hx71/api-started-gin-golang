@@ -4,6 +4,7 @@ import (
 	"log"
 	"srp-golang/app/controllers"
 	"srp-golang/config"
+	"srp-golang/middleware"
 	"srp-golang/repository"
 	"srp-golang/service"
 
@@ -20,15 +21,19 @@ func init() {
 }
 
 var (
-	db             *gorm.DB                   = config.SetupConnection()
-	userRepository repository.UserRepository  = repository.NewUserRepository(db)
-	jwtService     service.JWTService         = service.NewJWTService()
+	db             *gorm.DB                  = config.SetupConnection()
+	userRepository repository.UserRepository = repository.NewUserRepository(db)
+	jwtService     service.JWTService        = service.NewJWTService()
+
 	authService    service.AuthService        = service.NewAuthService(userRepository)
 	authController controllers.AuthController = controllers.NewAuthController(authService, jwtService)
+
+	userService    service.UserService        = service.NewUserService(userRepository)
+	userController controllers.UserController = controllers.NewUserController(userService, jwtService)
 )
 
 func SetupRouter() *gin.Engine {
-	defer config.CloseConnection(db)
+	// defer config.CloseConnection(db)
 
 	// Gin instance
 	r := gin.Default()
@@ -47,17 +52,17 @@ func SetupRouter() *gin.Engine {
 			auth.POST("/register", authController.Register)
 		}
 
-		// routes := v1.Group("/", middleware.AuthorizeJWT(jwtService))
-		// {
-		// 	pakets := routes.Group("/paket")
-		// 	{
-		// 		pakets.GET("/", paketController.Index)
-		// 		pakets.POST("/", paketController.Create)
-		// 		pakets.GET("/:id", paketController.Show)
-		// 		pakets.PUT("/:id", paketController.Update)
-		// 		pakets.DELETE("/:id", paketController.Deletex)
-		// 	}
-		// }
+		routes := v1.Group("/", middleware.AuthorizeJWT(jwtService))
+		{
+			users := routes.Group("/user")
+			{
+				users.GET("/", userController.Index)
+				users.POST("/", userController.Create)
+				users.GET("/:id", userController.Show)
+				users.PUT("/:id", userController.Update)
+				users.DELETE("/:id", userController.Delete)
+			}
+		}
 	}
 	return r
 }

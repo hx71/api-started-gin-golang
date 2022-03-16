@@ -27,6 +27,7 @@ func NewAuthService(userRep repository.UserRepository) AuthService {
 		userRepository: userRep,
 	}
 }
+
 func (service *authService) VerifyCredential(email string, password string) interface{} {
 	res := service.userRepository.VerifyCredential(email, password)
 	if v, ok := res.(models.User); ok {
@@ -45,7 +46,7 @@ func (service *authService) CreateUser(user request.RegisterValidation) models.U
 	if err != nil {
 		log.Fatalf("Failed map %v", err)
 	}
-	res := service.userRepository.InsertUser(userToCreate)
+	res := service.userRepository.Create(userToCreate)
 	return res
 }
 
