@@ -1,12 +1,16 @@
 package controllers
 
 import (
+	"fmt"
+	"log"
 	"net/http"
 	"srp-golang/app/models"
 	"srp-golang/app/request"
 	"srp-golang/helper"
 	"srp-golang/service"
+	"strings"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
@@ -14,6 +18,7 @@ import (
 type AuthController interface {
 	Login(ctx *gin.Context)
 	Register(ctx *gin.Context)
+	RefreshToken(ctx *gin.Context)
 }
 
 type authController struct {
@@ -21,10 +26,10 @@ type authController struct {
 	jwtService  service.JWTService
 }
 type LoginResponse struct {
-	ID          uint64
-	Name        string
-	Username    string
-	Email       string
+	ID          uint64 `json:"id"`
+	Name        string `json:"name"`
+	Username    string `json:"username"`
+	Email       string `json:"email"`
 	AccessToken string `json:"access_token"`
 }
 
@@ -47,7 +52,6 @@ func (c *authController) Login(ctx *gin.Context) {
 	authResult := c.authService.VerifyCredential(credentials.Email, credentials.Password)
 	if user, ok := authResult.(models.User); ok {
 		generatedToken := c.jwtService.GenerateToken(user.Email)
-		// generatedToken := c.jwtService.GenerateToken(strconv.FormatUint(user.ID, 10))
 		tokenResponse := LoginResponse{
 			ID:          user.ID,
 			Name:        user.Name,
@@ -79,5 +83,22 @@ func (c *authController) Register(ctx *gin.Context) {
 		createdUser := c.authService.CreateUser(RegisterRequest)
 		response := helper.BuildResponse(true, "register successfull!", createdUser)
 		ctx.JSON(http.StatusCreated, response)
+	}
+}
+
+func (c *authController) RefreshToken(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	extractedToken := strings.Split(authHeader, "Bearer ")
+	authHeader = strings.TrimSpace(extractedToken[1])
+	token, err := c.jwtService.ValidateToken(authHeader)
+	if token.Valid {
+		claims := token.Claims.(jwt.MapClaims)
+		email := fmt.Sprintf("%s", claims["email"])
+		refresh_token := c.jwtService.GenerateToken(email)
+		ctx.JSON(http.StatusOK, gin.H{"refresh_token": refresh_token})
+	} else {
+		log.Println(err)
+		response := helper.BuildErrorResponse("Token is not valid", err.Error(), nil)
+		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 	}
 }
