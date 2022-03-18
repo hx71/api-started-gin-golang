@@ -9,12 +9,16 @@ import (
 )
 
 type UserRepository interface {
-	InsertUser(user models.User) models.User
-	// UpdateUser(user models.User) models.User
+	Index() []models.User
+	Create(model models.User) models.User
+	Show(id uint64) models.User
+	Update(model models.User) models.User
+	Delete(user models.User) models.User
+	// Pagination(*models.Pagination) (RepositoryResult, int)
+
 	VerifyCredential(email string, password string) interface{}
 	IsDuplicateEmail(email string) (tx *gorm.DB)
 	FindByEmail(email string) models.User
-	// ProfileUser(userID string) models.User
 }
 
 type userConnection struct {
@@ -28,9 +32,32 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	}
 }
 
-func (db *userConnection) InsertUser(user models.User) models.User {
-	user.Password = hashAndSalt([]byte(user.Password))
-	db.connection.Save(&user)
+func (db *userConnection) Index() []models.User {
+	var user []models.User
+	db.connection.Find(&user)
+	return user
+}
+
+func (db *userConnection) Create(model models.User) models.User {
+	model.Password = hashAndSalt([]byte(model.Password))
+	db.connection.Save(&model)
+	return model
+}
+
+func (db *userConnection) Show(id uint64) models.User {
+	var user models.User
+	db.connection.Find(&user, id)
+	return user
+}
+
+func (db *userConnection) Update(model models.User) models.User {
+	db.connection.Updates(&model)
+	db.connection.Find(&model)
+	return model
+}
+
+func (db *userConnection) Delete(user models.User) models.User {
+	db.connection.Delete(&user)
 	return user
 }
 
