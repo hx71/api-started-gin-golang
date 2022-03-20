@@ -1,11 +1,13 @@
 package service
 
 import (
+	"fmt"
 	"log"
 	"srp-golang/app/models"
 	"srp-golang/app/request"
 	"srp-golang/repository"
 
+	"github.com/gin-gonic/gin"
 	"github.com/mashingan/smapping"
 )
 
@@ -70,4 +72,46 @@ func (service *userService) FindByEmail(email string) models.User {
 func (service *userService) IsDuplicateEmail(email string) bool {
 	res := service.userRepository.IsDuplicateEmail(email)
 	return !(res.Error == nil)
+}
+
+func PaginationUser(repository repository.UserRepository, context *gin.Context, pagination *request.Pagination) request.Response {
+
+	operationResult, totalPages := repository.PaginationUser(pagination)
+
+	if operationResult.Error != nil {
+		return request.Response{Success: false, Message: operationResult.Error.Error()}
+	}
+
+	var data = operationResult.Result.(*request.Pagination)
+
+	// get current url path
+	urlPath := context.Request.URL.Path
+
+	// search query params
+	searchQueryParams := ""
+
+	for _, search := range pagination.Searchs {
+		searchQueryParams += fmt.Sprintf("&%s.%s=%s", search.Column, search.Action, search.Query)
+	}
+
+	// set first & last page pagination response
+	data.FirstPage = fmt.Sprintf("%s?limit=%d&page=%d&sort=%s", urlPath, pagination.Limit, 0, pagination.Sort) + searchQueryParams
+	data.LastPage = fmt.Sprintf("%s?limit=%d&page=%d&sort=%s", urlPath, pagination.Limit, totalPages, pagination.Sort) + searchQueryParams
+
+	if data.Page > 0 {
+		// set previous page pagination response
+		data.PreviousPage = fmt.Sprintf("%s?limit=%d&page=%d&sort=%s", urlPath, pagination.Limit, data.Page-1, pagination.Sort) + searchQueryParams
+	}
+
+	if data.Page < totalPages {
+		// set next page pagination response
+		data.NextPage = fmt.Sprintf("%s?limit=%d&page=%d&sort=%s", urlPath, pagination.Limit, data.Page+1, pagination.Sort) + searchQueryParams
+	}
+
+	if data.Page > totalPages {
+		// reset previous page
+		data.PreviousPage = ""
+	}
+
+	return request.Response{Success: true, Data: data}
 }

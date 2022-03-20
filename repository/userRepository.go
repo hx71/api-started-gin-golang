@@ -1,8 +1,12 @@
 package repository
 
 import (
+	"fmt"
 	"log"
+	"math"
 	"srp-golang/app/models"
+	"srp-golang/app/request"
+	"strings"
 
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
@@ -14,7 +18,7 @@ type UserRepository interface {
 	Show(id uint64) models.User
 	Update(model models.User) models.User
 	Delete(user models.User) models.User
-	// Pagination(*models.Pagination) (RepositoryResult, int)
+	PaginationUser(*request.Pagination) (RepositoryResult, int)
 
 	VerifyCredential(email string, password string) interface{}
 	IsDuplicateEmail(email string) (tx *gorm.DB)
@@ -88,4 +92,90 @@ func hashAndSalt(pwd []byte) string {
 		panic("Failed to hash a password")
 	}
 	return string(hash)
+}
+
+func (db *userConnection) PaginationUser(pagination *request.Pagination) (RepositoryResult, int) {
+
+	var records []models.User
+	var tR int64
+
+	totalRows, totalPages, fromRow, toRow := 0, 0, 0, 0
+
+	offset := pagination.Page * pagination.Limit
+
+	// get data with limit, offset & order
+	find := db.connection.Limit(pagination.Limit).Offset(offset).Order(pagination.Sort)
+
+	// generate where query
+	searchs := pagination.Searchs
+
+	if searchs != nil {
+		for _, value := range searchs {
+			column := value.Column
+			action := value.Action
+			query := value.Query
+
+			switch action {
+			case "equals":
+				whereQuery := fmt.Sprintf("%s = ?", column)
+				find = find.Where(whereQuery, query)
+				break
+			case "contains":
+				whereQuery := fmt.Sprintf("%s LIKE ?", column)
+				find = find.Where(whereQuery, "%"+query+"%")
+				break
+			case "in":
+				whereQuery := fmt.Sprintf("%s IN (?)", column)
+				queryArray := strings.Split(query, ",")
+				find = find.Where(whereQuery, queryArray)
+				break
+
+			}
+		}
+	}
+
+	find = find.Find(&records)
+
+	// has error find data
+	errFind := find.Error
+
+	if errFind != nil {
+		return RepositoryResult{Error: errFind}, totalPages
+	}
+
+	pagination.Rows = records
+	// count all data
+
+	errCount := db.connection.Model(&models.User{}).Count(&tR).Error
+
+	if errCount != nil {
+		return RepositoryResult{Error: errCount}, totalPages
+	}
+
+	pagination.TotalRows = totalPages
+
+	// calculate total pages
+	totalPages = int(math.Ceil(float64(totalRows)/float64(pagination.Limit))) - 1
+
+	if pagination.Page == 0 {
+		// set from & to row on first page
+		fromRow = 1
+		toRow = pagination.Limit
+	} else {
+		if pagination.Page <= totalPages {
+			// calculate from & to row
+			fromRow = pagination.Page*pagination.Limit + 1
+			toRow = (pagination.Page + 1) * pagination.Limit
+		}
+	}
+
+	if toRow > totalRows {
+		// set to row with total rows
+		toRow = totalRows
+	}
+
+	pagination.FromRow = fromRow
+	pagination.ToRow = toRow
+
+	return RepositoryResult{Result: pagination}, totalPages
 }

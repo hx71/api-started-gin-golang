@@ -2,8 +2,10 @@ package engine
 
 import (
 	"log"
+	"net/http"
 	"srp-golang/app/controllers"
 	"srp-golang/config"
+	"srp-golang/helper"
 	"srp-golang/middleware"
 	"srp-golang/repository"
 	"srp-golang/service"
@@ -56,7 +58,20 @@ func SetupRouter() *gin.Engine {
 		{
 			users := routes.Group("/user")
 			{
-				users.GET("/", userController.Index)
+				// users.GET("/", userController.Index)
+				users.GET("/", func(context *gin.Context) {
+					code := http.StatusOK
+
+					pagination := helper.GeneratePaginationRequest(context)
+
+					response := service.PaginationUser(userRepository, context, pagination)
+
+					if !response.Success {
+						code = http.StatusBadRequest
+					}
+
+					context.JSON(code, response)
+				})
 				users.POST("/", userController.Create)
 				users.GET("/:id", userController.Show)
 				users.PUT("/:id", userController.Update)
