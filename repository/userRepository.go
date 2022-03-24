@@ -139,10 +139,6 @@ func (db *userConnection) PaginationUser(pagination *request.Pagination) (Reposi
 
 	find = find.Find(&records)
 
-	// for _, value := range records {
-	// 	fmt.Println(value.ID)
-	// }
-
 	// has error find data
 	errFind := find.Error
 

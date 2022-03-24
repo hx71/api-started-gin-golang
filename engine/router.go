@@ -58,8 +58,8 @@ func SetupRouter() *gin.Engine {
 		{
 			users := routes.Group("/user")
 			{
-				// users.GET("/", userController.Index)
-				users.GET("/", func(context *gin.Context) {
+				// users.GET("", userController.Index)
+				users.GET("", func(context *gin.Context) {
 					code := http.StatusOK
 
 					pagination := helper.GeneratePaginationRequest(context)
