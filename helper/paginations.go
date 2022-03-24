@@ -10,9 +10,9 @@ import (
 
 func GeneratePaginationRequest(context *gin.Context) *request.Pagination {
 	// default limit, page & sort parameter
-	limit := 10
+	limit := 5
 	page := 1
-	sort := "created_at desc"
+	sort := "created_at asc"
 
 	var searchs []request.Search
 

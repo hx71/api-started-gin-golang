@@ -4,7 +4,7 @@ type Pagination struct {
 	Limit        int         `json:"limit"`
 	Page         int         `json:"page"`
 	Sort         string      `json:"sort"`
-	TotalRows    int         `json:"total_rows"`
+	TotalRows    int64       `json:"total_rows"`
 	FirstPage    string      `json:"first_page"`
 	PreviousPage string      `json:"previous_page"`
 	NextPage     string      `json:"next_page"`
