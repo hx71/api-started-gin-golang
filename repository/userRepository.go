@@ -97,9 +97,12 @@ func hashAndSalt(pwd []byte) string {
 func (db *userConnection) PaginationUser(pagination *request.Pagination) (RepositoryResult, int) {
 
 	var records []models.User
-	var tR int64
+	var totalRows int64
 
 	totalRows, totalPages, fromRow, toRow := 0, 0, 0, 0
+
+	fmt.Println("pagination.Limit: ", pagination.Limit)
+	fmt.Println("pagination.Page: ", pagination.Page)
 
 	offset := pagination.Page * pagination.Limit
 
@@ -146,32 +149,32 @@ func (db *userConnection) PaginationUser(pagination *request.Pagination) (Reposi
 	pagination.Rows = records
 	// count all data
 
-	errCount := db.connection.Model(&models.User{}).Count(&tR).Error
+	errCount := db.connection.Model(&models.User{}).Count(&totalRows).Error
 
 	if errCount != nil {
 		return RepositoryResult{Error: errCount}, totalPages
 	}
 
-	pagination.TotalRows = totalPages
+	pagination.TotalRows = totalRows
 
 	// calculate total pages
-	totalPages = int(math.Ceil(float64(totalRows)/float64(pagination.Limit))) - 1
+	totalPages = int(math.Ceil(float64(totalRows) / float64(pagination.Limit)))
 
-	if pagination.Page == 0 {
+	if pagination.Page == 1 || pagination.Page == 0 {
 		// set from & to row on first page
 		fromRow = 1
 		toRow = pagination.Limit
 	} else {
 		if pagination.Page <= totalPages {
 			// calculate from & to row
-			fromRow = pagination.Page*pagination.Limit + 1
-			toRow = (pagination.Page + 1) * pagination.Limit
+			fromRow = ((pagination.Page - 1) * pagination.Limit) + 1
+			toRow = pagination.Page * pagination.Limit
 		}
 	}
 
-	if toRow > totalRows {
+	if int64(toRow) > totalRows {
 		// set to row with total rows
-		toRow = totalRows
+		toRow = int(totalRows)
 	}
 
 	pagination.FromRow = fromRow
