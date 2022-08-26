@@ -3,14 +3,14 @@ package engine
 import (
 	"log"
 	"net/http"
-	"srp-golang/app/controllers"
-	"srp-golang/config"
-	"srp-golang/helper"
-	"srp-golang/middleware"
-	"srp-golang/repository"
-	"srp-golang/service"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/controllers"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/repository"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/config"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helper"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/middleware"
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 )
@@ -48,6 +48,8 @@ func SetupRouter() *gin.Engine {
 	// Routes
 	v1 := r.Group("api/v1")
 	{
+		v1.GET("/version", authController.Version)
+
 		auth := v1.Group("auth")
 		{
 			auth.POST("/login", authController.Login)

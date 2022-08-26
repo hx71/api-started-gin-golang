@@ -2,13 +2,12 @@ package controllers
 
 import (
 	"net/http"
-	"srp-golang/app/models"
-	"srp-golang/app/request"
-	"srp-golang/helper"
-	"srp-golang/service"
-	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/models"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helper"
 )
 
 type Paginatex struct {
@@ -38,14 +37,14 @@ func NewUserController(userServ service.UserService, jwtServ service.JWTService)
 	}
 }
 
-func (c *userController) Index(ctx *gin.Context) {
-	var users []models.User = c.userService.Index()
-	res := helper.BuildResponse(true, "List of user", users)
+func (s *userController) Index(ctx *gin.Context) {
+	var users []models.User = s.userService.Index()
+	res := helper.BuildResponse(true, "list of user", users)
 	ctx.JSON(http.StatusOK, res)
 }
 
-func (c *userController) Create(ctx *gin.Context) {
-	var userValidation request.UserCreateValidation
+func (s *userController) Create(ctx *gin.Context) {
+	var userValidation dto.UserCreateValidation
 	errRequest := ctx.ShouldBind(&userValidation)
 	if errRequest != nil {
 		response := helper.BuildErrorResponse("Failed to process request", errRequest.Error(), helper.EmptyObj{})
@@ -53,25 +52,19 @@ func (c *userController) Create(ctx *gin.Context) {
 		return
 	}
 
-	if !c.userService.IsDuplicateEmail(userValidation.Email) {
+	if !s.userService.IsDuplicateEmail(userValidation.Email) {
 		response := helper.BuildErrorResponse("Failed to process request", "Duplicate email", helper.EmptyObj{})
 		ctx.JSON(http.StatusConflict, response)
 	} else {
-		user := c.userService.Create(userValidation)
+		user := s.userService.Create(userValidation)
 		response := helper.BuildResponse(true, "Created Success!", user)
 		ctx.JSON(http.StatusCreated, response)
 	}
 }
 
-func (c *userController) Show(ctx *gin.Context) {
-	id, err := strconv.ParseUint(ctx.Param("id"), 0, 0)
-	if err != nil {
-		res := helper.BuildErrorResponse("No param id was found", err.Error(), helper.EmptyObj{})
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
-		return
-	}
-
-	var user models.User = c.userService.Show(id)
+func (s *userController) Show(ctx *gin.Context) {
+	id := ctx.Param("id")
+	var user models.User = s.userService.Show(id)
 	if (user == models.User{}) {
 		res := helper.BuildErrorResponse("Data not found", "No data with given id", helper.EmptyObj{})
 		ctx.JSON(http.StatusNotFound, res)
@@ -82,19 +75,13 @@ func (c *userController) Show(ctx *gin.Context) {
 }
 
 func (c *userController) Update(ctx *gin.Context) {
-	id, err := strconv.ParseUint(ctx.Param("id"), 0, 0)
-	if err != nil {
-		res := helper.BuildErrorResponse("No param id was found", err.Error(), helper.EmptyObj{})
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
-		return
-	}
-
+	id := ctx.Param("id")
 	var user models.User = c.userService.Show(id)
 	if (user == models.User{}) {
 		res := helper.BuildErrorResponse("Data not found", "No data with given id", helper.EmptyObj{})
 		ctx.JSON(http.StatusNotFound, res)
 	} else {
-		var userValidation request.UserUpdateValidation
+		var userValidation dto.UserUpdateValidation
 		userValidation.ID = id
 		errValidation := ctx.ShouldBind(&userValidation)
 		if errValidation != nil {
@@ -108,12 +95,7 @@ func (c *userController) Update(ctx *gin.Context) {
 }
 
 func (c *userController) Delete(ctx *gin.Context) {
-	id, err := strconv.ParseUint(ctx.Param("id"), 0, 0)
-	if err != nil {
-		res := helper.BuildErrorResponse("No param id was found", err.Error(), helper.EmptyObj{})
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, res)
-		return
-	}
+	id := ctx.Param("id")
 
 	var user models.User = c.userService.Show(id)
 	if (user == models.User{}) {

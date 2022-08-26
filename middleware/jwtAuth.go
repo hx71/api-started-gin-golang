@@ -3,12 +3,12 @@ package middleware
 import (
 	"log"
 	"net/http"
-	"srp-golang/helper"
-	"srp-golang/service"
 	"strings"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helper"
 )
 
 //AuthorizeJWT validates the token user given, return 401 if not valid

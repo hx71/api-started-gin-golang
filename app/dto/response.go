@@ -1,4 +1,4 @@
-package request
+package dto
 
 type Response struct {
 	Success bool        `json:"success"`

@@ -2,7 +2,8 @@ package main
 
 import (
 	"os"
-	"srp-golang/engine"
+
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/engine"
 )
 
 func main() {

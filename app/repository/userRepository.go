@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 	"math"
-	"srp-golang/app/models"
-	"srp-golang/app/request"
 	"strings"
 
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/models"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
@@ -15,10 +15,10 @@ import (
 type UserRepository interface {
 	Index() []models.User
 	Create(model models.User) models.User
-	Show(id uint64) models.User
+	Show(id string) models.User
 	Update(model models.User) models.User
 	Delete(user models.User) models.User
-	PaginationUser(*request.Pagination) (RepositoryResult, int)
+	PaginationUser(*dto.Pagination) (RepositoryResult, int)
 
 	VerifyCredential(email string, password string) interface{}
 	IsDuplicateEmail(email string) (tx *gorm.DB)
@@ -48,7 +48,7 @@ func (db *userConnection) Create(model models.User) models.User {
 	return model
 }
 
-func (db *userConnection) Show(id uint64) models.User {
+func (db *userConnection) Show(id string) models.User {
 	var user models.User
 	db.connection.Find(&user, id)
 	return user
@@ -94,15 +94,12 @@ func hashAndSalt(pwd []byte) string {
 	return string(hash)
 }
 
-func (db *userConnection) PaginationUser(pagination *request.Pagination) (RepositoryResult, int) {
+func (db *userConnection) PaginationUser(pagination *dto.Pagination) (RepositoryResult, int) {
 
 	var records []models.User
 	var totalRows int64
 
 	totalRows, totalPages, fromRow, toRow := 0, 0, 0, 0
-
-	fmt.Println("pagination.Limit: ", pagination.Limit)
-	fmt.Println("pagination.Page: ", pagination.Page)
 
 	offset := pagination.Page * pagination.Limit
 
@@ -112,11 +109,17 @@ func (db *userConnection) PaginationUser(pagination *request.Pagination) (Reposi
 	// generate where query
 	searchs := pagination.Searchs
 
+	// fmt.Println(searchs)
+
 	if searchs != nil {
 		for _, value := range searchs {
 			column := value.Column
 			action := value.Action
 			query := value.Query
+
+			fmt.Println("c ", column)
+			fmt.Println("a ", action)
+			fmt.Println("q ", query)
 
 			switch action {
 			case "equals":
@@ -126,6 +129,9 @@ func (db *userConnection) PaginationUser(pagination *request.Pagination) (Reposi
 			case "contains":
 				whereQuery := fmt.Sprintf("%s LIKE ?", column)
 				find = find.Where(whereQuery, "%"+query+"%")
+
+				// find = db.connection.Where("%s LIKE ?", column, "%admin%")
+
 				break
 			case "in":
 				whereQuery := fmt.Sprintf("%s IN (?)", column)
@@ -136,6 +142,14 @@ func (db *userConnection) PaginationUser(pagination *request.Pagination) (Reposi
 			}
 		}
 	}
+
+	// whereQuery := fmt.Sprintf("%s = ?", "id")
+	// find = find.Where(whereQuery, 1)
+
+	// whereQuery := fmt.Sprintf("%s LIKE ?", column)
+	// find = find.Where(whereQuery, "%"+query+"%")
+
+	// db.Select("AVG(age)").Where("name LIKE ?", "name%").Table("users")
 
 	find = find.Find(&records)
 
