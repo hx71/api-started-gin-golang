@@ -1,22 +1,24 @@
 package helper
 
 import (
-	"srp-golang/app/request"
+	"fmt"
 	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
 )
 
-func GeneratePaginationRequest(context *gin.Context) *request.Pagination {
+func GeneratePaginationRequest(context *gin.Context) *dto.Pagination {
 	// default limit, page & sort parameter
 	limit := 5
-	page := 1
+	page := 0
 	sort := "created_at asc"
 
-	var searchs []request.Search
+	var searchs []dto.Search
 
 	query := context.Request.URL.Query()
+	fmt.Println(query)
 
 	for key, value := range query {
 		queryValue := value[len(value)-1]
@@ -37,14 +39,17 @@ func GeneratePaginationRequest(context *gin.Context) *request.Pagination {
 		if strings.Contains(key, ".") {
 			// split query parameter key by dot
 			searchKeys := strings.Split(key, ".")
+			// fmt.Println(key)
+			// fmt.Println(queryValue)
 
 			// create search object
-			search := request.Search{Column: searchKeys[0], Action: searchKeys[1], Query: queryValue}
+			// search := request.Search{Column: "id", Action: "equals", Query: "1"}
+			search := dto.Search{Column: searchKeys[0], Action: searchKeys[1], Query: queryValue}
 
 			// add search object to searchs array
 			searchs = append(searchs, search)
 		}
 	}
 
-	return &request.Pagination{Limit: limit, Page: page, Sort: sort, Searchs: searchs}
+	return &dto.Pagination{Limit: limit, Page: page, Sort: sort, Searchs: searchs}
 }

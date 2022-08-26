@@ -1,4 +1,4 @@
-package request
+package dto
 
 type Search struct {
 	Column string `json:"column"`

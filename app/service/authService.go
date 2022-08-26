@@ -2,17 +2,17 @@ package service
 
 import (
 	"log"
-	"srp-golang/app/models"
-	"srp-golang/app/request"
-	"srp-golang/repository"
 
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/models"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/repository"
 	"github.com/mashingan/smapping"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type AuthService interface {
 	VerifyCredential(email string, password string) interface{}
-	CreateUser(user request.RegisterValidation) models.User
+	CreateUser(user dto.RegisterValidation) models.User
 	FindByEmail(email string) models.User
 	IsDuplicateEmail(email string) bool
 }
@@ -40,7 +40,7 @@ func (service *authService) VerifyCredential(email string, password string) inte
 	return false
 }
 
-func (service *authService) CreateUser(user request.RegisterValidation) models.User {
+func (service *authService) CreateUser(user dto.RegisterValidation) models.User {
 	userToCreate := models.User{}
 	err := smapping.FillStruct(&userToCreate, smapping.MapFields(&user))
 	if err != nil {
@@ -63,7 +63,6 @@ func comparePassword(hashedPwd string, plainPassword []byte) bool {
 	byteHash := []byte(hashedPwd)
 	err := bcrypt.CompareHashAndPassword(byteHash, plainPassword)
 	if err != nil {
-		log.Println(err)
 		return false
 	}
 	return true

@@ -4,18 +4,20 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"srp-golang/app/models"
-	"srp-golang/app/request"
-	"srp-golang/helper"
-	"srp-golang/service"
 	"strings"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/models"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helper"
 )
 
 //AuthController interface is a contract what this controller can do
 type AuthController interface {
+	Version(ctx *gin.Context)
 	Login(ctx *gin.Context)
 	Register(ctx *gin.Context)
 	RefreshToken(ctx *gin.Context)
@@ -26,7 +28,7 @@ type authController struct {
 	jwtService  service.JWTService
 }
 type LoginResponse struct {
-	ID          uint64 `json:"id"`
+	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Username    string `json:"username"`
 	Email       string `json:"email"`
@@ -41,17 +43,21 @@ func NewAuthController(authServ service.AuthService, jwtServ service.JWTService)
 	}
 }
 
-func (c *authController) Login(ctx *gin.Context) {
-	var credentials request.LoginValidation
+func (c *authController) Version(ctx *gin.Context) {
+	ctx.JSON(http.StatusOK, "version 1.0.0")
+}
+
+func (s *authController) Login(ctx *gin.Context) {
+	var credentials dto.LoginValidation
 	errCredentials := ctx.ShouldBind(&credentials)
 	if errCredentials != nil {
 		response := helper.BuildErrorResponse("Failed to process request", errCredentials.Error(), helper.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
-	authResult := c.authService.VerifyCredential(credentials.Email, credentials.Password)
+	authResult := s.authService.VerifyCredential(credentials.Email, credentials.Password)
 	if user, ok := authResult.(models.User); ok {
-		generatedToken := c.jwtService.GenerateToken(user.Email)
+		generatedToken := s.jwtService.GenerateToken(user.Email)
 		tokenResponse := LoginResponse{
 			ID:          user.ID,
 			Name:        user.Name,
@@ -59,7 +65,7 @@ func (c *authController) Login(ctx *gin.Context) {
 			Email:       user.Email,
 			AccessToken: generatedToken,
 		}
-		response := helper.BuildResponse(true, "OK!", tokenResponse)
+		response := helper.BuildResponse(true, "login successfull!", tokenResponse)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
@@ -67,34 +73,35 @@ func (c *authController) Login(ctx *gin.Context) {
 	ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 }
 
-func (c *authController) Register(ctx *gin.Context) {
-	var RegisterRequest request.RegisterValidation
-	errRequest := ctx.ShouldBind(&RegisterRequest)
+func (s *authController) Register(ctx *gin.Context) {
+	var RegisterReq dto.RegisterValidation
+	RegisterReq.ID = uuid.NewString()
+	errRequest := ctx.ShouldBind(&RegisterReq)
 	if errRequest != nil {
 		response := helper.BuildErrorResponse("Failed to process request", errRequest.Error(), helper.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
-	if !c.authService.IsDuplicateEmail(RegisterRequest.Email) {
+	if !s.authService.IsDuplicateEmail(RegisterReq.Email) {
 		response := helper.BuildErrorResponse("Failed to process request", "Duplicate email", helper.EmptyObj{})
 		ctx.JSON(http.StatusConflict, response)
 	} else {
-		createdUser := c.authService.CreateUser(RegisterRequest)
+		createdUser := s.authService.CreateUser(RegisterReq)
 		response := helper.BuildResponse(true, "register successfull!", createdUser)
 		ctx.JSON(http.StatusCreated, response)
 	}
 }
 
-func (c *authController) RefreshToken(ctx *gin.Context) {
+func (s *authController) RefreshToken(ctx *gin.Context) {
 	authHeader := ctx.GetHeader("Authorization")
 	extractedToken := strings.Split(authHeader, "Bearer ")
 	authHeader = strings.TrimSpace(extractedToken[1])
-	token, err := c.jwtService.ValidateToken(authHeader)
+	token, err := s.jwtService.ValidateToken(authHeader)
 	if token.Valid {
 		claims := token.Claims.(jwt.MapClaims)
 		email := fmt.Sprintf("%s", claims["email"])
-		refresh_token := c.jwtService.GenerateToken(email)
+		refresh_token := s.jwtService.GenerateToken(email)
 		ctx.JSON(http.StatusOK, gin.H{"refresh_token": refresh_token})
 	} else {
 		log.Println(err)

@@ -1,4 +1,4 @@
-package request
+package dto
 
 // Create validation is a model that used by client when POST
 type UserCreateValidation struct {
@@ -10,7 +10,7 @@ type UserCreateValidation struct {
 
 //  Update validation is a model that used by client when POST
 type UserUpdateValidation struct {
-	ID       uint64 `json:"id" form:"id" binding:"required"`
+	ID       string `json:"id" form:"id" binding:"required,omitempty,uuid"`
 	Username string `json:"username" form:"username" binding:"required"`
 	Name     string `json:"name" form:"name" binding:"required"`
 	Email    string `json:"email" form:"email" binding:"required,email" `

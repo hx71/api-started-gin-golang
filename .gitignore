@@ -1,6 +1,7 @@
+.vscode/
+.idea/
 *.exe
 .env
 .DS_Store
 /vendor
 /uploads
-/~

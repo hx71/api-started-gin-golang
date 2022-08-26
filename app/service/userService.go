@@ -3,20 +3,20 @@ package service
 import (
 	"fmt"
 	"log"
-	"srp-golang/app/models"
-	"srp-golang/app/request"
-	"srp-golang/repository"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/models"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/repository"
 	"github.com/mashingan/smapping"
 )
 
 //UserService is a ....
 type UserService interface {
 	Index() []models.User
-	Create(model request.UserCreateValidation) models.User
-	Show(id uint64) models.User
-	Update(model request.UserUpdateValidation) models.User
+	Create(model dto.UserCreateValidation) models.User
+	Show(id string) models.User
+	Update(model dto.UserUpdateValidation) models.User
 	Delete(model models.User) models.User
 	FindByEmail(email string) models.User
 	IsDuplicateEmail(email string) bool
@@ -37,7 +37,7 @@ func (service *userService) Index() []models.User {
 	return service.userRepository.Index()
 }
 
-func (service *userService) Create(model request.UserCreateValidation) models.User {
+func (service *userService) Create(model dto.UserCreateValidation) models.User {
 	user := models.User{}
 	err := smapping.FillStruct(&user, smapping.MapFields(&model))
 	if err != nil {
@@ -47,11 +47,11 @@ func (service *userService) Create(model request.UserCreateValidation) models.Us
 	return res
 }
 
-func (service *userService) Show(id uint64) models.User {
+func (service *userService) Show(id string) models.User {
 	return service.userRepository.Show(id)
 }
 
-func (service *userService) Update(model request.UserUpdateValidation) models.User {
+func (service *userService) Update(model dto.UserUpdateValidation) models.User {
 	user := models.User{}
 	err := smapping.FillStruct(&user, smapping.MapFields(&model))
 	if err != nil {
@@ -74,15 +74,15 @@ func (service *userService) IsDuplicateEmail(email string) bool {
 	return !(res.Error == nil)
 }
 
-func PaginationUser(repository repository.UserRepository, context *gin.Context, pagination *request.Pagination) request.Response {
+func PaginationUser(repository repository.UserRepository, context *gin.Context, pagination *dto.Pagination) dto.Response {
 
 	operationResult, totalPages := repository.PaginationUser(pagination)
 
 	if operationResult.Error != nil {
-		return request.Response{Success: false, Message: operationResult.Error.Error()}
+		return dto.Response{Success: false, Message: operationResult.Error.Error()}
 	}
 
-	var data = operationResult.Result.(*request.Pagination)
+	var data = operationResult.Result.(*dto.Pagination)
 
 	// get current url path
 	urlPath := context.Request.URL.Path
@@ -113,5 +113,5 @@ func PaginationUser(repository repository.UserRepository, context *gin.Context, 
 		data.PreviousPage = ""
 	}
 
-	return request.Response{Success: true, Data: data}
+	return dto.Response{Success: true, Data: data}
 }
