@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/models"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/repository"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
 	"github.com/mashingan/smapping"
 	"golang.org/x/crypto/bcrypt"
 )

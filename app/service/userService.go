@@ -6,8 +6,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/models"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/repository"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helpers"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
 	"github.com/mashingan/smapping"
 )
 
@@ -20,6 +21,8 @@ type UserService interface {
 	Delete(model models.User) models.User
 	FindByEmail(email string) models.User
 	IsDuplicateEmail(email string) bool
+
+	PaginationUser(ctx *gin.Context, pagination *helpers.Pagination) models.Response
 }
 
 type userService struct {
@@ -74,15 +77,15 @@ func (service *userService) IsDuplicateEmail(email string) bool {
 	return !(res.Error == nil)
 }
 
-func PaginationUser(repository repository.UserRepository, context *gin.Context, pagination *dto.Pagination) dto.Response {
+func (r *userService) PaginationUser(context *gin.Context, pagination *helpers.Pagination) models.Response {
 
-	operationResult, totalPages := repository.PaginationUser(pagination)
+	operationResult, totalPages := r.userRepository.PaginationUser(pagination)
 
 	if operationResult.Error != nil {
-		return dto.Response{Success: false, Message: operationResult.Error.Error()}
+		return models.Response{Success: false, Message: operationResult.Error.Error()}
 	}
 
-	var data = operationResult.Result.(*dto.Pagination)
+	var data = operationResult.Result.(*helpers.Pagination)
 
 	// get current url path
 	urlPath := context.Request.URL.Path
@@ -113,5 +116,5 @@ func PaginationUser(repository repository.UserRepository, context *gin.Context, 
 		data.PreviousPage = ""
 	}
 
-	return dto.Response{Success: true, Data: data}
+	return models.Response{Success: true, Data: data}
 }

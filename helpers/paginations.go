@@ -1,4 +1,4 @@
-package helper
+package helpers
 
 import (
 	"fmt"
@@ -6,16 +6,30 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
 )
 
-func GeneratePaginationRequest(context *gin.Context) *dto.Pagination {
+type Pagination struct {
+	Limit        int         `json:"limit"`
+	Page         int         `json:"page"`
+	Sort         string      `json:"sort"`
+	TotalRows    int64       `json:"total_rows"`
+	FirstPage    string      `json:"first_page"`
+	PreviousPage string      `json:"previous_page"`
+	NextPage     string      `json:"next_page"`
+	LastPage     string      `json:"last_page"`
+	FromRow      int         `json:"from_row"`
+	ToRow        int         `json:"to_row"`
+	Rows         interface{} `json:"rows"`
+	Searchs      []Search    `json:"searchs"`
+}
+
+func GeneratePaginationRequest(context *gin.Context) *Pagination {
 	// default limit, page & sort parameter
-	limit := 5
-	page := 0
+	limit := 10
+	page := 1
 	sort := "created_at asc"
 
-	var searchs []dto.Search
+	var searchs []Search
 
 	query := context.Request.URL.Query()
 	fmt.Println(query)
@@ -44,12 +58,12 @@ func GeneratePaginationRequest(context *gin.Context) *dto.Pagination {
 
 			// create search object
 			// search := request.Search{Column: "id", Action: "equals", Query: "1"}
-			search := dto.Search{Column: searchKeys[0], Action: searchKeys[1], Query: queryValue}
+			search := Search{Column: searchKeys[0], Action: searchKeys[1], Query: queryValue}
 
 			// add search object to searchs array
 			searchs = append(searchs, search)
 		}
 	}
 
-	return &dto.Pagination{Limit: limit, Page: page, Sort: sort, Searchs: searchs}
+	return &Pagination{Limit: limit, Page: page, Sort: sort, Searchs: searchs}
 }
