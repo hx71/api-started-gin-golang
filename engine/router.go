@@ -2,14 +2,12 @@ package engine
 
 import (
 	"log"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/controllers"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/repository"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/config"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helper"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/middleware"
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
@@ -60,21 +58,8 @@ func SetupRouter() *gin.Engine {
 		{
 			users := routes.Group("/user")
 			{
-				// users.GET("", userController.Index)
-				users.GET("", func(context *gin.Context) {
-					code := http.StatusOK
-
-					pagination := helper.GeneratePaginationRequest(context)
-
-					response := service.PaginationUser(userRepository, context, pagination)
-
-					if !response.Success {
-						code = http.StatusBadRequest
-					}
-
-					context.JSON(code, response)
-				})
-				users.POST("/", userController.Create)
+				users.GET("", userController.Index)
+				users.POST("", userController.Create)
 				users.GET("/:id", userController.Show)
 				users.PUT("/:id", userController.Update)
 				users.DELETE("/:id", userController.Delete)

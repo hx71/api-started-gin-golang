@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/models"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
 	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

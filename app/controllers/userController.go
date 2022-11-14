@@ -5,9 +5,9 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/models"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helper"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helpers"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
 )
 
 type Paginatex struct {
@@ -38,26 +38,30 @@ func NewUserController(userServ service.UserService, jwtServ service.JWTService)
 }
 
 func (s *userController) Index(ctx *gin.Context) {
-	var users []models.User = s.userService.Index()
-	res := helper.BuildResponse(true, "list of user", users)
-	ctx.JSON(http.StatusOK, res)
+	code := http.StatusOK
+	pagination := helpers.GeneratePaginationRequest(ctx)
+	response := s.userService.PaginationUser(ctx, pagination)
+	if !response.Success {
+		code = http.StatusBadRequest
+	}
+	ctx.JSON(code, response)
 }
 
 func (s *userController) Create(ctx *gin.Context) {
 	var userValidation dto.UserCreateValidation
 	errRequest := ctx.ShouldBind(&userValidation)
 	if errRequest != nil {
-		response := helper.BuildErrorResponse("Failed to process request", errRequest.Error(), helper.EmptyObj{})
+		response := helpers.BuildErrorResponse("Failed to process request", errRequest.Error(), helpers.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
 	if !s.userService.IsDuplicateEmail(userValidation.Email) {
-		response := helper.BuildErrorResponse("Failed to process request", "Duplicate email", helper.EmptyObj{})
+		response := helpers.BuildErrorResponse("Failed to process request", "Duplicate email", helpers.EmptyObj{})
 		ctx.JSON(http.StatusConflict, response)
 	} else {
 		user := s.userService.Create(userValidation)
-		response := helper.BuildResponse(true, "Created Success!", user)
+		response := helpers.BuildResponse(true, "Created Success!", user)
 		ctx.JSON(http.StatusCreated, response)
 	}
 }
@@ -66,10 +70,10 @@ func (s *userController) Show(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var user models.User = s.userService.Show(id)
 	if (user == models.User{}) {
-		res := helper.BuildErrorResponse("Data not found", "No data with given id", helper.EmptyObj{})
+		res := helpers.BuildErrorResponse("Data not found", "No data with given id", helpers.EmptyObj{})
 		ctx.JSON(http.StatusNotFound, res)
 	} else {
-		res := helper.BuildResponse(true, "Detail user", user)
+		res := helpers.BuildResponse(true, "Detail user", user)
 		ctx.JSON(http.StatusOK, res)
 	}
 }
@@ -78,18 +82,18 @@ func (c *userController) Update(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var user models.User = c.userService.Show(id)
 	if (user == models.User{}) {
-		res := helper.BuildErrorResponse("Data not found", "No data with given id", helper.EmptyObj{})
+		res := helpers.BuildErrorResponse("Data not found", "No data with given id", helpers.EmptyObj{})
 		ctx.JSON(http.StatusNotFound, res)
 	} else {
 		var userValidation dto.UserUpdateValidation
 		userValidation.ID = id
 		errValidation := ctx.ShouldBind(&userValidation)
 		if errValidation != nil {
-			res := helper.BuildErrorResponse("Failed to process request", errValidation.Error(), helper.EmptyObj{})
+			res := helpers.BuildErrorResponse("Failed to process request", errValidation.Error(), helpers.EmptyObj{})
 			ctx.JSON(http.StatusBadRequest, res)
 		}
 		result := c.userService.Update(userValidation)
-		res := helper.BuildResponse(true, "Updated success", result)
+		res := helpers.BuildResponse(true, "Updated success", result)
 		ctx.JSON(http.StatusCreated, res)
 	}
 }
@@ -99,11 +103,11 @@ func (c *userController) Delete(ctx *gin.Context) {
 
 	var user models.User = c.userService.Show(id)
 	if (user == models.User{}) {
-		res := helper.BuildErrorResponse("Data not found", "No data with given id", helper.EmptyObj{})
+		res := helpers.BuildErrorResponse("Data not found", "No data with given id", helpers.EmptyObj{})
 		ctx.JSON(http.StatusNotFound, res)
 	} else {
 		result := c.userService.Delete(user)
-		res := helper.BuildResponse(true, "Deleted success", result)
+		res := helpers.BuildResponse(true, "Deleted success", result)
 		ctx.JSON(http.StatusCreated, res)
 	}
 }

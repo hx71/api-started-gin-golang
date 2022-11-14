@@ -10,9 +10,9 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/models"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helper"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helpers"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
 )
 
 //AuthController interface is a contract what this controller can do
@@ -51,7 +51,7 @@ func (s *authController) Login(ctx *gin.Context) {
 	var credentials dto.LoginValidation
 	errCredentials := ctx.ShouldBind(&credentials)
 	if errCredentials != nil {
-		response := helper.BuildErrorResponse("Failed to process request", errCredentials.Error(), helper.EmptyObj{})
+		response := helpers.BuildErrorResponse("Failed to process request", errCredentials.Error(), helpers.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
@@ -65,11 +65,11 @@ func (s *authController) Login(ctx *gin.Context) {
 			Email:       user.Email,
 			AccessToken: generatedToken,
 		}
-		response := helper.BuildResponse(true, "login successfull!", tokenResponse)
+		response := helpers.BuildResponse(true, "login successfull!", tokenResponse)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
-	response := helper.BuildErrorResponse("Please check again your credential", "Invalid Credential", helper.EmptyObj{})
+	response := helpers.BuildErrorResponse("Please check again your credential", "Invalid Credential", helpers.EmptyObj{})
 	ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 }
 
@@ -78,17 +78,17 @@ func (s *authController) Register(ctx *gin.Context) {
 	RegisterReq.ID = uuid.NewString()
 	errRequest := ctx.ShouldBind(&RegisterReq)
 	if errRequest != nil {
-		response := helper.BuildErrorResponse("Failed to process request", errRequest.Error(), helper.EmptyObj{})
+		response := helpers.BuildErrorResponse("Failed to process request", errRequest.Error(), helpers.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
 	if !s.authService.IsDuplicateEmail(RegisterReq.Email) {
-		response := helper.BuildErrorResponse("Failed to process request", "Duplicate email", helper.EmptyObj{})
+		response := helpers.BuildErrorResponse("Failed to process request", "Duplicate email", helpers.EmptyObj{})
 		ctx.JSON(http.StatusConflict, response)
 	} else {
 		createdUser := s.authService.CreateUser(RegisterReq)
-		response := helper.BuildResponse(true, "register successfull!", createdUser)
+		response := helpers.BuildResponse(true, "register successfull!", createdUser)
 		ctx.JSON(http.StatusCreated, response)
 	}
 }
@@ -105,7 +105,7 @@ func (s *authController) RefreshToken(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"refresh_token": refresh_token})
 	} else {
 		log.Println(err)
-		response := helper.BuildErrorResponse("Token is not valid", err.Error(), nil)
+		response := helpers.BuildErrorResponse("Token is not valid", err.Error(), nil)
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 	}
 }
