@@ -5,10 +5,12 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/repository"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helpers"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
 	"github.com/mashingan/smapping"
 )
 
@@ -22,7 +24,7 @@ type UserService interface {
 	FindByEmail(email string) models.User
 	IsDuplicateEmail(email string) bool
 
-	PaginationUser(ctx *gin.Context, pagination *helpers.Pagination) models.Response
+	PaginationUser(ctx *gin.Context, pagination *helpers.Pagination) response.Response
 }
 
 type userService struct {
@@ -42,6 +44,7 @@ func (service *userService) Index() []models.User {
 
 func (service *userService) Create(model dto.UserCreateValidation) models.User {
 	user := models.User{}
+	user.ID = uuid.NewString()
 	err := smapping.FillStruct(&user, smapping.MapFields(&model))
 	if err != nil {
 		log.Fatalf("Failed map %v: ", err)
@@ -77,12 +80,12 @@ func (service *userService) IsDuplicateEmail(email string) bool {
 	return !(res.Error == nil)
 }
 
-func (r *userService) PaginationUser(context *gin.Context, pagination *helpers.Pagination) models.Response {
+func (r *userService) PaginationUser(context *gin.Context, pagination *helpers.Pagination) response.Response {
 
 	operationResult, totalPages := r.userRepository.PaginationUser(pagination)
 
 	if operationResult.Error != nil {
-		return models.Response{Success: false, Message: operationResult.Error.Error()}
+		return response.Response{Status: false, Message: operationResult.Error.Error()}
 	}
 
 	var data = operationResult.Result.(*helpers.Pagination)
@@ -116,5 +119,5 @@ func (r *userService) PaginationUser(context *gin.Context, pagination *helpers.P
 		data.PreviousPage = ""
 	}
 
-	return models.Response{Success: true, Data: data}
+	return response.Response{Status: true, Data: data}
 }

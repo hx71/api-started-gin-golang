@@ -50,7 +50,7 @@ func (db *userConnection) Create(model models.User) models.User {
 
 func (db *userConnection) Show(id string) models.User {
 	var user models.User
-	db.connection.Find(&user, id)
+	db.connection.Find(&user, "id = ?", id)
 	return user
 }
 
