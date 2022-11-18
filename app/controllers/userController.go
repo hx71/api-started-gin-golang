@@ -11,11 +11,6 @@ import (
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
 )
 
-type Paginatex struct {
-	Meta map[string]interface{} `json:"meta"`
-	Data interface{}            `json:"data"`
-}
-
 //UserController is a contract what this controller can do
 type UserController interface {
 	Index(ctx *gin.Context)
@@ -40,9 +35,9 @@ func NewUserController(userServ service.UserService, jwtServ service.JWTService)
 
 func (s *userController) Index(ctx *gin.Context) {
 	pagination := helpers.GeneratePaginationRequest(ctx)
-	res := s.userService.PaginationUser(ctx, pagination)
+	res := s.userService.Pagination(ctx, pagination)
 	if !res.Status {
-		response := response.ResponseError("failed to get data user", res.Message, response.EmptyObj{})
+		response := response.ResponseError("failed to get data user", res.Message)
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -54,13 +49,13 @@ func (s *userController) Create(ctx *gin.Context) {
 	var userValidation dto.UserCreateValidation
 	err := ctx.ShouldBind(&userValidation)
 	if err != nil {
-		response := response.ResponseError("failed to process request", err.Error(), response.EmptyObj{})
+		response := response.ResponseError("failed to process request", err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	if !s.userService.IsDuplicateEmail(userValidation.Email) {
-		response := response.ResponseError("Failed to process request", "Duplicate email", helpers.EmptyObj{})
+	if s.userService.FindByEmail(userValidation.Email) != nil {
+		response := response.ResponseError("Failed to process request", "duplicate email")
 		ctx.JSON(http.StatusConflict, response)
 	} else {
 		user := s.userService.Create(userValidation)
@@ -73,7 +68,7 @@ func (s *userController) Show(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var user models.User = s.userService.Show(id)
 	if (user == models.User{}) {
-		res := response.ResponseError("Data not found", "No data with given id", helpers.EmptyObj{})
+		res := response.ResponseError("Data not found", "No data with given id")
 		ctx.JSON(http.StatusNotFound, res)
 	} else {
 		response := response.ResponseSuccess("detail user", user)
@@ -84,20 +79,25 @@ func (s *userController) Show(ctx *gin.Context) {
 func (c *userController) Update(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var user models.User = c.userService.Show(id)
-	if (user == models.User{}) {
-		res := response.ResponseError("Data not found", "No data with given id", helpers.EmptyObj{})
+	if user.ID == "" {
+		res := response.ResponseError("data not found", "no data with given id")
 		ctx.JSON(http.StatusNotFound, res)
 	} else {
 		var userValidation dto.UserUpdateValidation
 		userValidation.ID = id
 		err := ctx.ShouldBind(&userValidation)
 		if err != nil {
-			response := response.ResponseError("Failed to process request", err.Error(), response.EmptyObj{})
+			response := response.ResponseError("failed to process request", err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
-		user := c.userService.Update(userValidation)
-		response := response.ResponseSuccess("update success", user)
+		err = c.userService.Update(userValidation)
+		if err != nil {
+			response := response.ResponseError("update failed", err.Error())
+			ctx.JSON(http.StatusBadRequest, response)
+			return
+		}
+		response := response.ResponseSuccess("update success", nil)
 		ctx.JSON(http.StatusCreated, response)
 	}
 }
@@ -106,7 +106,7 @@ func (c *userController) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var user models.User = c.userService.Show(id)
 	if (user == models.User{}) {
-		response := response.ResponseError("data not found", "No data with given id", response.EmptyObj{})
+		response := response.ResponseError("data not found", "no data with given id")
 		ctx.JSON(http.StatusNotFound, response)
 	} else {
 		user := c.userService.Delete(user)

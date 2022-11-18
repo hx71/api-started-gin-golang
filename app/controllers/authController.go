@@ -74,20 +74,20 @@ func (s *authController) Login(ctx *gin.Context) {
 }
 
 func (s *authController) Register(ctx *gin.Context) {
-	var RegisterReq dto.RegisterValidation
-	RegisterReq.ID = uuid.NewString()
-	errRequest := ctx.ShouldBind(&RegisterReq)
+	var req dto.RegisterValidation
+	req.ID = uuid.NewString()
+	errRequest := ctx.ShouldBind(&req)
 	if errRequest != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", errRequest.Error(), helpers.EmptyObj{})
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
-	if !s.authService.IsDuplicateEmail(RegisterReq.Email) {
+	if s.authService.FindByEmail(req.Email) != nil {
 		response := helpers.BuildErrorResponse("Failed to process request", "Duplicate email", helpers.EmptyObj{})
 		ctx.JSON(http.StatusConflict, response)
 	} else {
-		createdUser := s.authService.CreateUser(RegisterReq)
+		createdUser := s.authService.CreateUser(req)
 		response := helpers.BuildResponse(true, "register successfull!", createdUser)
 		ctx.JSON(http.StatusCreated, response)
 	}

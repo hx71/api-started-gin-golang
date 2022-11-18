@@ -14,15 +14,14 @@ import (
 
 type UserRepository interface {
 	Index() []models.User
-	Create(model models.User) models.User
+	Create(model models.User) error
 	Show(id string) models.User
-	Update(model models.User) models.User
-	Delete(user models.User) models.User
-	PaginationUser(*helpers.Pagination) (RepositoryResult, int)
+	Update(model models.User) error
+	Delete(user models.User) error
+	Pagination(*helpers.Pagination) (RepositoryResult, int)
 
 	VerifyCredential(email string, password string) interface{}
-	IsDuplicateEmail(email string) (tx *gorm.DB)
-	FindByEmail(email string) models.User
+	FindByEmail(email string) error
 }
 
 type userConnection struct {
@@ -42,10 +41,9 @@ func (db *userConnection) Index() []models.User {
 	return user
 }
 
-func (db *userConnection) Create(model models.User) models.User {
+func (db *userConnection) Create(model models.User) error {
 	model.Password = hashAndSalt([]byte(model.Password))
-	db.connection.Save(&model)
-	return model
+	return db.connection.Save(&model).Error
 }
 
 func (db *userConnection) Show(id string) models.User {
@@ -54,15 +52,12 @@ func (db *userConnection) Show(id string) models.User {
 	return user
 }
 
-func (db *userConnection) Update(model models.User) models.User {
-	db.connection.Updates(&model)
-	db.connection.Find(&model)
-	return model
+func (db *userConnection) Update(model models.User) error {
+	return db.connection.Updates(&model).Error
 }
 
-func (db *userConnection) Delete(user models.User) models.User {
-	db.connection.Delete(&user)
-	return user
+func (db *userConnection) Delete(user models.User) error {
+	return db.connection.Delete(&user).Error
 }
 
 func (db *userConnection) VerifyCredential(email string, password string) interface{} {
@@ -74,15 +69,9 @@ func (db *userConnection) VerifyCredential(email string, password string) interf
 	return nil
 }
 
-func (db *userConnection) IsDuplicateEmail(email string) (tx *gorm.DB) {
+func (db *userConnection) FindByEmail(email string) error {
 	var user models.User
-	return db.connection.Where("email = ?", email).Take(&user)
-}
-
-func (db *userConnection) FindByEmail(email string) models.User {
-	var user models.User
-	db.connection.Where("email = ?", email).Take(&user)
-	return user
+	return db.connection.Where("email = ?", email).Take(&user).Error
 }
 
 func hashAndSalt(pwd []byte) string {
@@ -94,7 +83,7 @@ func hashAndSalt(pwd []byte) string {
 	return string(hash)
 }
 
-func (db *userConnection) PaginationUser(pagination *helpers.Pagination) (RepositoryResult, int) {
+func (db *userConnection) Pagination(pagination *helpers.Pagination) (RepositoryResult, int) {
 
 	var records []models.User
 	var totalRows int64
@@ -167,7 +156,6 @@ func (db *userConnection) PaginationUser(pagination *helpers.Pagination) (Reposi
 	}
 
 	pagination.Rows = records
-
 	pagination.TotalRows = totalRows
 
 	// calculate total pages

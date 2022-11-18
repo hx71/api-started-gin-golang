@@ -56,7 +56,7 @@ func SetupRouter() *gin.Engine {
 
 		routes := v1.Group("/", middleware.AuthorizeJWT(jwtService))
 		{
-			users := routes.Group("/user")
+			users := routes.Group("/users")
 			{
 				users.GET("", userController.Index)
 				users.POST("", userController.Create)
