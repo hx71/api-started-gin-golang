@@ -21,7 +21,7 @@ type UserService interface {
 	Show(id string) models.User
 	Update(model dto.UserUpdateValidation) error
 	Delete(model models.User) error
-	FindByEmail(email string) error
+	FindByEmail(email string) bool
 	Pagination(ctx *gin.Context, pagination *helpers.Pagination) response.Response
 }
 
@@ -67,7 +67,7 @@ func (service *userService) Delete(user models.User) error {
 	return service.userRepository.Delete(user)
 }
 
-func (service *userService) FindByEmail(email string) error {
+func (service *userService) FindByEmail(email string) bool {
 	return service.userRepository.FindByEmail(email)
 }
 

@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
@@ -19,6 +20,7 @@ import (
 type AuthController interface {
 	Version(ctx *gin.Context)
 	Login(ctx *gin.Context)
+	Logout(ctx *gin.Context)
 	Register(ctx *gin.Context)
 	RefreshToken(ctx *gin.Context)
 }
@@ -83,7 +85,7 @@ func (s *authController) Register(ctx *gin.Context) {
 		return
 	}
 
-	if s.authService.FindByEmail(req.Email) != nil {
+	if !s.authService.FindByEmail(req.Email) {
 		response := helpers.BuildErrorResponse("Failed to process request", "Duplicate email", helpers.EmptyObj{})
 		ctx.JSON(http.StatusConflict, response)
 	} else {
@@ -108,4 +110,17 @@ func (s *authController) RefreshToken(ctx *gin.Context) {
 		response := helpers.BuildErrorResponse("Token is not valid", err.Error(), nil)
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 	}
+}
+
+func (s *authController) Logout(ctx *gin.Context) {
+	cookies := http.Cookie{
+		Name:    "token",
+		Value:   "",
+		Expires: time.Now().Add(-7 * 24 * time.Hour),
+		MaxAge:  -1,
+	}
+	http.SetCookie(ctx.Writer, &cookies)
+
+	res := helpers.BuildResponse(true, "Successfully logged out!", cookies)
+	ctx.JSON(http.StatusCreated, res)
 }

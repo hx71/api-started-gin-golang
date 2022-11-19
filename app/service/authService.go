@@ -13,7 +13,7 @@ import (
 type AuthService interface {
 	VerifyCredential(email string, password string) interface{}
 	CreateUser(user dto.RegisterValidation) error
-	FindByEmail(email string) error
+	FindByEmail(email string) bool
 }
 
 type authService struct {
@@ -48,7 +48,7 @@ func (service *authService) CreateUser(user dto.RegisterValidation) error {
 	return service.userRepository.Create(userToCreate)
 }
 
-func (service *authService) FindByEmail(email string) error {
+func (service *authService) FindByEmail(email string) bool {
 	return service.userRepository.FindByEmail(email)
 }
 

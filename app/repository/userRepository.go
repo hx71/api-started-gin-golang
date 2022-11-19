@@ -21,7 +21,7 @@ type UserRepository interface {
 	Pagination(*helpers.Pagination) (RepositoryResult, int)
 
 	VerifyCredential(email string, password string) interface{}
-	FindByEmail(email string) error
+	FindByEmail(email string) bool
 }
 
 type userConnection struct {
@@ -69,9 +69,14 @@ func (db *userConnection) VerifyCredential(email string, password string) interf
 	return nil
 }
 
-func (db *userConnection) FindByEmail(email string) error {
+func (db *userConnection) FindByEmail(email string) bool {
 	var user models.User
-	return db.connection.Where("email = ?", email).Take(&user).Error
+	res := db.connection.Where("email = ?", email).Take(&user)
+	if res.Error == nil {
+		return false
+	}
+	return true
+
 }
 
 func hashAndSalt(pwd []byte) string {

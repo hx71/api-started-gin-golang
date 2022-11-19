@@ -54,7 +54,7 @@ func (s *userController) Create(ctx *gin.Context) {
 		return
 	}
 
-	if s.userService.FindByEmail(userValidation.Email) != nil {
+	if !s.userService.FindByEmail(userValidation.Email) {
 		response := response.ResponseError("Failed to process request", "duplicate email")
 		ctx.JSON(http.StatusConflict, response)
 	} else {
