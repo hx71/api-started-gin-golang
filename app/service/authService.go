@@ -12,9 +12,8 @@ import (
 
 type AuthService interface {
 	VerifyCredential(email string, password string) interface{}
-	CreateUser(user dto.RegisterValidation) models.User
-	FindByEmail(email string) models.User
-	IsDuplicateEmail(email string) bool
+	CreateUser(user dto.RegisterValidation) error
+	FindByEmail(email string) bool
 }
 
 type authService struct {
@@ -40,23 +39,17 @@ func (service *authService) VerifyCredential(email string, password string) inte
 	return false
 }
 
-func (service *authService) CreateUser(user dto.RegisterValidation) models.User {
+func (service *authService) CreateUser(user dto.RegisterValidation) error {
 	userToCreate := models.User{}
 	err := smapping.FillStruct(&userToCreate, smapping.MapFields(&user))
 	if err != nil {
 		log.Fatalf("Failed map %v", err)
 	}
-	res := service.userRepository.Create(userToCreate)
-	return res
+	return service.userRepository.Create(userToCreate)
 }
 
-func (service *authService) FindByEmail(email string) models.User {
+func (service *authService) FindByEmail(email string) bool {
 	return service.userRepository.FindByEmail(email)
-}
-
-func (service *authService) IsDuplicateEmail(email string) bool {
-	res := service.userRepository.IsDuplicateEmail(email)
-	return !(res.Error == nil)
 }
 
 func comparePassword(hashedPwd string, plainPassword []byte) bool {

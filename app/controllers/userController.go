@@ -8,12 +8,8 @@ import (
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helpers"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
 )
-
-type Paginatex struct {
-	Meta map[string]interface{} `json:"meta"`
-	Data interface{}            `json:"data"`
-}
 
 //UserController is a contract what this controller can do
 type UserController interface {
@@ -38,30 +34,32 @@ func NewUserController(userServ service.UserService, jwtServ service.JWTService)
 }
 
 func (s *userController) Index(ctx *gin.Context) {
-	code := http.StatusOK
 	pagination := helpers.GeneratePaginationRequest(ctx)
-	response := s.userService.PaginationUser(ctx, pagination)
-	if !response.Success {
-		code = http.StatusBadRequest
+	res := s.userService.Pagination(ctx, pagination)
+	if !res.Status {
+		response := response.ResponseError("failed to get data user", res.Message)
+		ctx.JSON(http.StatusBadRequest, response)
+		return
 	}
-	ctx.JSON(code, response)
+	response := response.ResponseSuccess("list of user", res.Data)
+	ctx.JSON(http.StatusOK, response)
 }
 
 func (s *userController) Create(ctx *gin.Context) {
 	var userValidation dto.UserCreateValidation
-	errRequest := ctx.ShouldBind(&userValidation)
-	if errRequest != nil {
-		response := helpers.BuildErrorResponse("Failed to process request", errRequest.Error(), helpers.EmptyObj{})
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
+	err := ctx.ShouldBind(&userValidation)
+	if err != nil {
+		response := response.ResponseError("failed to process request", err.Error())
+		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	if !s.userService.IsDuplicateEmail(userValidation.Email) {
-		response := helpers.BuildErrorResponse("Failed to process request", "Duplicate email", helpers.EmptyObj{})
+	if !s.userService.FindByEmail(userValidation.Email) {
+		response := response.ResponseError("Failed to process request", "duplicate email")
 		ctx.JSON(http.StatusConflict, response)
 	} else {
 		user := s.userService.Create(userValidation)
-		response := helpers.BuildResponse(true, "Created Success!", user)
+		response := response.ResponseSuccess("created succeess", user)
 		ctx.JSON(http.StatusCreated, response)
 	}
 }
@@ -70,44 +68,49 @@ func (s *userController) Show(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var user models.User = s.userService.Show(id)
 	if (user == models.User{}) {
-		res := helpers.BuildErrorResponse("Data not found", "No data with given id", helpers.EmptyObj{})
+		res := response.ResponseError("Data not found", "No data with given id")
 		ctx.JSON(http.StatusNotFound, res)
 	} else {
-		res := helpers.BuildResponse(true, "Detail user", user)
-		ctx.JSON(http.StatusOK, res)
+		response := response.ResponseSuccess("detail user", user)
+		ctx.JSON(http.StatusOK, response)
 	}
 }
 
 func (c *userController) Update(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var user models.User = c.userService.Show(id)
-	if (user == models.User{}) {
-		res := helpers.BuildErrorResponse("Data not found", "No data with given id", helpers.EmptyObj{})
+	if user.ID == "" {
+		res := response.ResponseError("data not found", "no data with given id")
 		ctx.JSON(http.StatusNotFound, res)
 	} else {
 		var userValidation dto.UserUpdateValidation
 		userValidation.ID = id
-		errValidation := ctx.ShouldBind(&userValidation)
-		if errValidation != nil {
-			res := helpers.BuildErrorResponse("Failed to process request", errValidation.Error(), helpers.EmptyObj{})
-			ctx.JSON(http.StatusBadRequest, res)
+		err := ctx.ShouldBind(&userValidation)
+		if err != nil {
+			response := response.ResponseError("failed to process request", err.Error())
+			ctx.JSON(http.StatusBadRequest, response)
+			return
 		}
-		result := c.userService.Update(userValidation)
-		res := helpers.BuildResponse(true, "Updated success", result)
-		ctx.JSON(http.StatusCreated, res)
+		err = c.userService.Update(userValidation)
+		if err != nil {
+			response := response.ResponseError("update failed", err.Error())
+			ctx.JSON(http.StatusBadRequest, response)
+			return
+		}
+		response := response.ResponseSuccess("update success", nil)
+		ctx.JSON(http.StatusCreated, response)
 	}
 }
 
 func (c *userController) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
-
 	var user models.User = c.userService.Show(id)
 	if (user == models.User{}) {
-		res := helpers.BuildErrorResponse("Data not found", "No data with given id", helpers.EmptyObj{})
-		ctx.JSON(http.StatusNotFound, res)
+		response := response.ResponseError("data not found", "no data with given id")
+		ctx.JSON(http.StatusNotFound, response)
 	} else {
-		result := c.userService.Delete(user)
-		res := helpers.BuildResponse(true, "Deleted success", result)
-		ctx.JSON(http.StatusCreated, res)
+		user := c.userService.Delete(user)
+		response := response.ResponseSuccess("deleted success", user)
+		ctx.JSON(http.StatusOK, response)
 	}
 }

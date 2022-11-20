@@ -22,8 +22,8 @@ func init() {
 
 var (
 	db             *gorm.DB                  = config.SetupConnection()
-	userRepository repository.UserRepository = repository.NewUserRepository(db)
 	jwtService     service.JWTService        = service.NewJWTService()
+	userRepository repository.UserRepository = repository.NewUserRepository(db)
 
 	authService    service.AuthService        = service.NewAuthService(userRepository)
 	authController controllers.AuthController = controllers.NewAuthController(authService, jwtService)
@@ -52,11 +52,12 @@ func SetupRouter() *gin.Engine {
 		{
 			auth.POST("/login", authController.Login)
 			auth.POST("/register", authController.Register)
+			auth.GET("/logout", middleware.AuthorizeJWT(jwtService), authController.Logout)
 		}
 
 		routes := v1.Group("/", middleware.AuthorizeJWT(jwtService))
 		{
-			users := routes.Group("/user")
+			users := routes.Group("/users")
 			{
 				users.GET("", userController.Index)
 				users.POST("", userController.Create)

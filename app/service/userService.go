@@ -5,24 +5,24 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/repository"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helpers"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
 	"github.com/mashingan/smapping"
 )
 
 //UserService is a ....
 type UserService interface {
 	Index() []models.User
-	Create(model dto.UserCreateValidation) models.User
+	Create(model dto.UserCreateValidation) error
 	Show(id string) models.User
-	Update(model dto.UserUpdateValidation) models.User
-	Delete(model models.User) models.User
-	FindByEmail(email string) models.User
-	IsDuplicateEmail(email string) bool
-
-	PaginationUser(ctx *gin.Context, pagination *helpers.Pagination) models.Response
+	Update(model dto.UserUpdateValidation) error
+	Delete(model models.User) error
+	FindByEmail(email string) bool
+	Pagination(ctx *gin.Context, pagination *helpers.Pagination) response.Response
 }
 
 type userService struct {
@@ -40,49 +40,43 @@ func (service *userService) Index() []models.User {
 	return service.userRepository.Index()
 }
 
-func (service *userService) Create(model dto.UserCreateValidation) models.User {
+func (service *userService) Create(model dto.UserCreateValidation) error {
 	user := models.User{}
+	user.ID = uuid.NewString()
 	err := smapping.FillStruct(&user, smapping.MapFields(&model))
 	if err != nil {
 		log.Fatalf("Failed map %v: ", err)
 	}
-	res := service.userRepository.Create(user)
-	return res
+	return service.userRepository.Create(user)
 }
 
 func (service *userService) Show(id string) models.User {
 	return service.userRepository.Show(id)
 }
 
-func (service *userService) Update(model dto.UserUpdateValidation) models.User {
+func (service *userService) Update(model dto.UserUpdateValidation) error {
 	user := models.User{}
 	err := smapping.FillStruct(&user, smapping.MapFields(&model))
 	if err != nil {
 		log.Fatalf("Failed map %v: ", err)
 	}
-	res := service.userRepository.Update(user)
-	return res
+	return service.userRepository.Update(user)
 }
 
-func (service *userService) Delete(user models.User) models.User {
+func (service *userService) Delete(user models.User) error {
 	return service.userRepository.Delete(user)
 }
 
-func (service *userService) FindByEmail(email string) models.User {
+func (service *userService) FindByEmail(email string) bool {
 	return service.userRepository.FindByEmail(email)
 }
 
-func (service *userService) IsDuplicateEmail(email string) bool {
-	res := service.userRepository.IsDuplicateEmail(email)
-	return !(res.Error == nil)
-}
+func (r *userService) Pagination(context *gin.Context, pagination *helpers.Pagination) response.Response {
 
-func (r *userService) PaginationUser(context *gin.Context, pagination *helpers.Pagination) models.Response {
-
-	operationResult, totalPages := r.userRepository.PaginationUser(pagination)
+	operationResult, totalPages := r.userRepository.Pagination(pagination)
 
 	if operationResult.Error != nil {
-		return models.Response{Success: false, Message: operationResult.Error.Error()}
+		return response.Response{Status: false, Message: operationResult.Error.Error()}
 	}
 
 	var data = operationResult.Result.(*helpers.Pagination)
@@ -116,5 +110,5 @@ func (r *userService) PaginationUser(context *gin.Context, pagination *helpers.P
 		data.PreviousPage = ""
 	}
 
-	return models.Response{Success: true, Data: data}
+	return response.Response{Status: true, Data: data}
 }

@@ -3,4 +3,3 @@ r:
 
 run:
 	go run main.go
-	
