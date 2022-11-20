@@ -8,7 +8,7 @@ type Response struct {
 	Data    interface{} `json:"data"`
 }
 
-//Response is used for static shape json return
+// Response is used for static shape json return
 type ResSuccess struct {
 	Status  bool        `json:"status"`
 	Message string      `json:"message"`
@@ -20,7 +20,7 @@ type ResError struct {
 	Errors  interface{} `json:"errors"`
 }
 
-//BuildResponse method is to inject data value to dynamic success response
+// BuildResponse method is to inject data value to dynamic success response
 func ResponseSuccess(message string, data interface{}) ResSuccess {
 	res := ResSuccess{
 		Status:  true,
@@ -30,7 +30,7 @@ func ResponseSuccess(message string, data interface{}) ResSuccess {
 	return res
 }
 
-//BuildErrorResponse method is to inject data value to dynamic failed response
+// BuildErrorResponse method is to inject data value to dynamic failed response
 func ResponseError(message string, err string) ResError {
 	splittedError := strings.Split(err, "\n")
 	res := ResError{

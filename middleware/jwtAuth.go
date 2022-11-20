@@ -8,15 +8,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helpers"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
 )
 
-//AuthorizeJWT validates the token user given, return 401 if not valid
+// AuthorizeJWT validates the token user given, return 401 if not valid
 func AuthorizeJWT(jwtService service.JWTService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			response := helpers.BuildErrorResponse("Failed to process request", "No token found", nil)
+			response := response.ResponseError("failed to process request", "token not found")
 			c.AbortWithStatusJSON(http.StatusBadRequest, response)
 			return
 		}
@@ -29,7 +29,7 @@ func AuthorizeJWT(jwtService service.JWTService) gin.HandlerFunc {
 			log.Println("Claim[issuer] :", claims["issuer"])
 		} else {
 			log.Println(err)
-			response := helpers.BuildErrorResponse("Token is not valid", err.Error(), nil)
+			response := response.ResponseError("token is not valid", err.Error())
 			c.AbortWithStatusJSON(http.StatusUnauthorized, response)
 		}
 	}

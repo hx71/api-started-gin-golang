@@ -12,11 +12,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helpers"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
 )
 
-//AuthController interface is a contract what this controller can do
+// AuthController interface is a contract what this controller can do
 type AuthController interface {
 	Version(ctx *gin.Context)
 	Login(ctx *gin.Context)
@@ -37,7 +37,7 @@ type LoginResponse struct {
 	AccessToken string `json:"access_token"`
 }
 
-//NewAuthController creates a new instance of AuthController
+// NewAuthController creates a new instance of AuthController
 func NewAuthController(authServ service.AuthService, jwtServ service.JWTService) AuthController {
 	return &authController{
 		authService: authServ,
@@ -53,7 +53,7 @@ func (s *authController) Login(ctx *gin.Context) {
 	var credentials dto.LoginValidation
 	errCredentials := ctx.ShouldBind(&credentials)
 	if errCredentials != nil {
-		response := helpers.BuildErrorResponse("Failed to process request", errCredentials.Error(), helpers.EmptyObj{})
+		response := response.ResponseError("Failed to process request", errCredentials.Error())
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
@@ -67,11 +67,11 @@ func (s *authController) Login(ctx *gin.Context) {
 			Email:       user.Email,
 			AccessToken: generatedToken,
 		}
-		response := helpers.BuildResponse(true, "login successfull!", tokenResponse)
+		response := response.ResponseSuccess("login successfull!", tokenResponse)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
-	response := helpers.BuildErrorResponse("Please check again your credential", "Invalid Credential", helpers.EmptyObj{})
+	response := response.ResponseError("Please check again your credential", "Invalid Credential")
 	ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 }
 
@@ -80,17 +80,17 @@ func (s *authController) Register(ctx *gin.Context) {
 	req.ID = uuid.NewString()
 	errRequest := ctx.ShouldBind(&req)
 	if errRequest != nil {
-		response := helpers.BuildErrorResponse("Failed to process request", errRequest.Error(), helpers.EmptyObj{})
+		response := response.ResponseError("Failed to process request", errRequest.Error())
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
 	if !s.authService.FindByEmail(req.Email) {
-		response := helpers.BuildErrorResponse("Failed to process request", "Duplicate email", helpers.EmptyObj{})
+		response := response.ResponseError("Failed to process request", "Duplicate email")
 		ctx.JSON(http.StatusConflict, response)
 	} else {
 		createdUser := s.authService.CreateUser(req)
-		response := helpers.BuildResponse(true, "register successfull!", createdUser)
+		response := response.ResponseSuccess("register successfull!", createdUser)
 		ctx.JSON(http.StatusCreated, response)
 	}
 }
@@ -107,7 +107,7 @@ func (s *authController) RefreshToken(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{"refresh_token": refresh_token})
 	} else {
 		log.Println(err)
-		response := helpers.BuildErrorResponse("Token is not valid", err.Error(), nil)
+		response := response.ResponseError("Token is not valid", err.Error())
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, response)
 	}
 }
@@ -121,6 +121,6 @@ func (s *authController) Logout(ctx *gin.Context) {
 	}
 	http.SetCookie(ctx.Writer, &cookies)
 
-	res := helpers.BuildResponse(true, "Successfully logged out!", cookies)
+	res := response.ResponseSuccess("Successfully logged out!", cookies)
 	ctx.JSON(http.StatusCreated, res)
 }
