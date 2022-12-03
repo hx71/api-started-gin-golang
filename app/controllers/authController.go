@@ -46,7 +46,8 @@ func NewAuthController(authServ service.AuthService, jwtServ service.JWTService)
 }
 
 func (c *authController) Version(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, "version 1.0.0")
+	response := response.ResponseSuccess("api version", "version 1.0.0")
+	ctx.JSON(http.StatusOK, response)
 }
 
 func (s *authController) Login(ctx *gin.Context) {

@@ -19,7 +19,6 @@ type UserRepository interface {
 	Update(model models.User) error
 	Delete(user models.User) error
 	Pagination(*helpers.Pagination) (RepositoryResult, int)
-
 	VerifyCredential(email string, password string) interface{}
 	FindByEmail(email string) bool
 }
@@ -28,7 +27,7 @@ type userConnection struct {
 	connection *gorm.DB
 }
 
-//NewUserRepository is creates a new instance of UserRepository
+// NewUserRepository is creates a new instance of UserRepository
 func NewUserRepository(db *gorm.DB) UserRepository {
 	return &userConnection{
 		connection: db,
@@ -76,7 +75,6 @@ func (db *userConnection) FindByEmail(email string) bool {
 		return false
 	}
 	return true
-
 }
 
 func hashAndSalt(pwd []byte) string {

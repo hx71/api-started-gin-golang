@@ -55,6 +55,7 @@ func SetupRouter() *gin.Engine {
 			auth.GET("/logout", middleware.AuthorizeJWT(jwtService), authController.Logout)
 		}
 
+		// routes := v1.Group("/")
 		routes := v1.Group("/", middleware.AuthorizeJWT(jwtService))
 		{
 			users := routes.Group("/users")
