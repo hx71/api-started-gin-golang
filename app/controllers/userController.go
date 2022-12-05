@@ -11,7 +11,7 @@ import (
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
 )
 
-//UserController is a contract what this controller can do
+// UserController is a contract what this controller can do
 type UserController interface {
 	Index(ctx *gin.Context)
 	Create(ctx *gin.Context)
@@ -25,7 +25,7 @@ type userController struct {
 	jwtService  service.JWTService
 }
 
-//NewUserController create a new instances of UserController
+// NewUserController create a new instances of UserController
 func NewUserController(userServ service.UserService, jwtServ service.JWTService) UserController {
 	return &userController{
 		userService: userServ,

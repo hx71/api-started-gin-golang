@@ -11,6 +11,10 @@ import (
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/middleware"
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
+
+	_ "github.com/hasrulrhul/service-repository-pattern-gin-golang/docs/swagger"
+	swaggerFiles "github.com/swaggo/files"
+	swagger "github.com/swaggo/gin-swagger"
 )
 
 func init() {
@@ -42,6 +46,8 @@ func SetupRouter() *gin.Engine {
 	// }
 	r.Use(gin.Recovery())
 	r.Use(CORSMiddleware())
+
+	r.GET("/swagger/*any", swagger.WrapHandler(swaggerFiles.Handler))
 
 	// Routes
 	v1 := r.Group("api/v1")

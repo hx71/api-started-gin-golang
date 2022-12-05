@@ -1,0 +1,50 @@
+basePath: /api/v1
+definitions:
+  engine.ResponseStatus:
+    properties:
+      data: {}
+      errors: {}
+      message:
+        type: string
+      status:
+        type: boolean
+    type: object
+  engine.ResponseSuccess:
+    properties:
+      message:
+        type: string
+      status:
+        type: boolean
+    type: object
+host: localhost:1234
+info:
+  contact: {}
+  description: This is a document for API use in [Backend API Services]
+  title: Swagger for [Backend API Services]
+  version: "1.0"
+paths:
+  /api/v1/version:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/engine.ResponseSuccess'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/engine.ResponseStatus'
+      tags:
+      - Api Version
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
