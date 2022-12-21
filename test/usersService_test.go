@@ -1,14 +1,15 @@
-package service
+package test
 
 import (
 	"testing"
 
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/repository"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/test/repository"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
+// var usersRepository = &repository.UsersRepositoryMock{Mock: mock.Mock{}}
 var usersRepository = &repository.UsersRepositoryMock{Mock: mock.Mock{}}
 var usersService = UsersService{Repository: usersRepository}
 

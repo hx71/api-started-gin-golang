@@ -1,14 +1,15 @@
-package service
+package test
 
 import (
 	"errors"
 
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/repository"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
+	test "github.com/hasrulrhul/service-repository-pattern-gin-golang/test/repository"
 )
 
 type UsersService struct {
-	Repository repository.UsersRepository
+	// Repository repository.UsersRepository
+	Repository test.UsersRepository
 }
 
 func (service UsersService) Get(id string) (*models.Users, error) {
