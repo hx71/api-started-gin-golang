@@ -13,43 +13,55 @@ import (
 var usersRepository = &repository.UsersRepositoryMock{Mock: mock.Mock{}}
 var usersService = UsersService{Repository: usersRepository}
 
+func TestUsersService_Index(t *testing.T) {
+	var listUsers []models.User
+	var users = models.User{
+		ID:   "1",
+		Name: "hasrul",
+	}
+	listUsers = append(listUsers, users)
+
+	usersRepository.Mock.On("Index").Return(listUsers)
+	user, err := usersService.Index()
+	assert.Nil(t, err)
+	assert.NotNil(t, user)
+
+}
+func TestUsersService_Create(t *testing.T) {
+	users := models.User{
+		ID:       "1",
+		Name:     "hasrul",
+		Username: "hasrul",
+		Password: "hasrul@123",
+		Email:    "hasrul@mail.com",
+	}
+
+	usersRepository.Mock.On("Create", users).Return(users, nil)
+	user, err := usersService.Create(users)
+	assert.Nil(t, err)
+	assert.NotNil(t, user)
+	assert.Equal(t, user.ID, "1")
+}
+
+func TestUsersService_GetFound(t *testing.T) {
+	users := models.User{
+		ID:   "1",
+		Name: "hasrul",
+	}
+	usersRepository.Mock.On("Show", "1").Return(users)
+
+	result, err := usersService.Show("1")
+	assert.Nil(t, err)
+	assert.NotNil(t, result)
+	assert.Equal(t, result.ID, "1")
+	assert.Equal(t, result.Name, "hasrul")
+}
+
 func TestUsersService_GetNotFound(t *testing.T) {
+	usersRepository.Mock.On("Show", "2").Return(nil)
 
-	usersRepository.Mock.On("FindByID", "1").Return(nil)
-
-	users, err := usersService.Get("1")
+	users, err := usersService.Show("2")
 	assert.Nil(t, users)
 	assert.NotNil(t, err)
 
 }
-
-func TestUsersService_GetFound(t *testing.T) {
-
-	users := models.Users{
-		ID:   "2",
-		Name: "hasrul",
-	}
-
-	usersRepository.Mock.On("FindByID", "2").Return(users)
-	result, err := usersService.Get("2")
-	assert.Nil(t, err)
-	assert.NotNil(t, result)
-	assert.Equal(t, result.ID, "2")
-	assert.Equal(t, result.Name, "hasrul")
-}
-
-// func TestUsersService_Show(t *testing.T) {
-
-// 	users := models.Users{
-// 		ID:   "3",
-// 		Name: "rhul",
-// 	}
-
-// 	usersRepository.Mock.On("Show", "3").Return(users)
-
-// 	result, err := usersService.Show("3")
-// 	assert.Nil(t, err)
-// 	assert.NotNil(t, result)
-// 	assert.Equal(t, result.ID, "3")
-// 	assert.Equal(t, result.Name, "rhul")
-// }

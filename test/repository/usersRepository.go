@@ -5,6 +5,9 @@ import (
 )
 
 type UsersRepository interface {
-	FindByID(id string) *models.Users
-	// Show(id string) *models.Users
+	Index() *[]models.User
+	Create(req models.User) (*models.User, error)
+	Show(id string) *models.User
+	// Update(req models.User) error
+	// Delete(req models.User) error
 }

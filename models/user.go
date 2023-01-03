@@ -18,7 +18,7 @@ type User struct {
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at"`
 }
 
-type Users struct {
-	ID   string
-	Name string
-}
+// type Users struct {
+// 	ID   string
+// 	Name string
+// }
