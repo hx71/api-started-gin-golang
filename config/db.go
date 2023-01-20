@@ -36,6 +36,7 @@ func SetupConnection() *gorm.DB {
 	}
 	//nanti kita isi modelnya di sini
 	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&models.Todo{})
 	return db
 }
 

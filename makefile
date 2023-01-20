@@ -2,7 +2,7 @@ GOSOURCEFILE="./main.go"
 SWAGDOCS="./docs/swagger"
 
 r:
-	nodemon --exec go run main.go --signal SIGTERM
+	go run main.go
 
 run:
 	echo "Update Swagger Docs"
