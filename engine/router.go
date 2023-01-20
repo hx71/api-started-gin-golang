@@ -34,6 +34,10 @@ var (
 
 	userService    service.UserService        = service.NewUserService(userRepository)
 	userController controllers.UserController = controllers.NewUserController(userService, jwtService)
+
+	todoRepository repository.TodoRepository  = repository.NewTodoRepository(db)
+	todoService    service.TodoService        = service.NewTodoService(todoRepository)
+	todoController controllers.TodoController = controllers.NewTodoController(todoService, jwtService)
 )
 
 func SetupRouter() *gin.Engine {
@@ -70,6 +74,15 @@ func SetupRouter() *gin.Engine {
 				users.GET("/:id", userController.Show)
 				users.PUT("/:id", userController.Update)
 				users.DELETE("/:id", userController.Delete)
+			}
+
+			todo := routes.Group("/todo")
+			{
+				todo.GET("", todoController.Index)
+				todo.POST("", todoController.Create)
+				todo.GET("/:id", todoController.Show)
+				todo.PUT("/:id", todoController.Update)
+				todo.DELETE("/:id", todoController.Delete)
 			}
 		}
 	}
