@@ -12,9 +12,9 @@ import (
 
 type TodoRepository interface {
 	Create(model models.Todo) error
-	Show(id string) models.Todo
+	Show(id string) models.Todos
 	Update(model models.Todo) error
-	Delete(user models.Todo) error
+	Delete(id string) error
 	Pagination(*helpers.Pagination) (RepositoryResult, int)
 }
 
@@ -33,18 +33,25 @@ func (db *todoConnection) Create(model models.Todo) error {
 	return db.connection.Save(&model).Error
 }
 
-func (db *todoConnection) Show(id string) models.Todo {
-	var user models.Todo
-	db.connection.Find(&user, "id = ?", id)
-	return user
+func (db *todoConnection) Show(id string) models.Todos {
+	var todo models.Todos
+	db.connection.Table("todos").
+		Select("todos.*, users.id, users.name as name_user").
+		Joins("LEFT JOIN users on users.id = todos.user_id").
+		Where("todos.id = ?", id).
+		Where("todos.created_at is null").
+		Scan(&todo)
+	return todo
 }
 
 func (db *todoConnection) Update(model models.Todo) error {
 	return db.connection.Updates(&model).Error
 }
 
-func (db *todoConnection) Delete(user models.Todo) error {
-	return db.connection.Delete(&user).Error
+func (db *todoConnection) Delete(id string) error {
+	var todo models.Todos
+	db.connection.Find(&todo, "id = ?", id)
+	return db.connection.Delete(&todo).Error
 }
 
 func (db *todoConnection) Pagination(pagination *helpers.Pagination) (RepositoryResult, int) {

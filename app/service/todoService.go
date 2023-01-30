@@ -17,9 +17,9 @@ import (
 //TodoService is a ....
 type TodoService interface {
 	Create(model dto.TodoCreateValidation) error
-	Show(id string) models.Todo
+	Show(id string) models.Todos
 	Update(model dto.TodoCreateValidation) error
-	Delete(model models.Todo) error
+	Delete(id string) error
 	Pagination(ctx *gin.Context, pagination *helpers.Pagination) response.Response
 }
 
@@ -44,7 +44,7 @@ func (service *todoService) Create(model dto.TodoCreateValidation) error {
 	return service.todoRepository.Create(todo)
 }
 
-func (service *todoService) Show(id string) models.Todo {
+func (service *todoService) Show(id string) models.Todos {
 	return service.todoRepository.Show(id)
 }
 
@@ -57,8 +57,8 @@ func (service *todoService) Update(model dto.TodoCreateValidation) error {
 	return service.todoRepository.Update(todo)
 }
 
-func (service *todoService) Delete(todo models.Todo) error {
-	return service.todoRepository.Delete(todo)
+func (service *todoService) Delete(id string) error {
+	return service.todoRepository.Delete(id)
 }
 
 func (r *todoService) Pagination(context *gin.Context, pagination *helpers.Pagination) response.Response {

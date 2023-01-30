@@ -1,12 +1,10 @@
 package middleware
 
 import (
-	"log"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
 )
@@ -24,11 +22,11 @@ func AuthorizeJWT(jwtService service.JWTService) gin.HandlerFunc {
 		authHeader = strings.TrimSpace(extractedToken[1])
 		token, err := jwtService.ValidateToken(authHeader)
 		if token.Valid {
-			claims := token.Claims.(jwt.MapClaims)
-			log.Println("Claim[user_id]: ", claims["user_id"])
-			log.Println("Claim[issuer] :", claims["issuer"])
+			// claims := token.Claims.(jwt.MapClaims)
+			// log.Println("Claim[user_id]: ", claims["user_id"])
+			// log.Println("Claim[issuer] :", claims["issuer"])
 		} else {
-			log.Println(err)
+			// log.Println(err)
 			response := response.ResponseError("token is not valid", err.Error())
 			c.AbortWithStatusJSON(http.StatusUnauthorized, response)
 		}

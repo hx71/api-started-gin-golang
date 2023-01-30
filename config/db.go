@@ -34,7 +34,9 @@ func SetupConnection() *gorm.DB {
 	if err != nil {
 		panic("Failed to create a connection to database")
 	}
-	//nanti kita isi modelnya di sini
+	// delete tables
+
+	// migrate tables
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models.Todo{})
 	return db
