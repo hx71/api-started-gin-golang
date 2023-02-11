@@ -38,7 +38,7 @@ func SetupConnection() *gorm.DB {
 
 	// migrate tables
 	db.AutoMigrate(&models.User{})
-	db.AutoMigrate(&models.Todo{})
+	db.AutoMigrate(&models.Role{})
 	return db
 }
 

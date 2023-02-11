@@ -35,9 +35,9 @@ var (
 	userService    service.UserService        = service.NewUserService(userRepository)
 	userController controllers.UserController = controllers.NewUserController(userService, jwtService)
 
-	todoRepository repository.TodoRepository  = repository.NewTodoRepository(db)
-	todoService    service.TodoService        = service.NewTodoService(todoRepository)
-	todoController controllers.TodoController = controllers.NewTodoController(todoService, jwtService)
+	roleRepository repository.RoleRepository  = repository.NewRoleRepository(db)
+	roleService    service.RoleService        = service.NewRoleService(roleRepository)
+	roleController controllers.RoleController = controllers.NewRoleController(roleService, jwtService)
 )
 
 func SetupRouter() *gin.Engine {
@@ -65,7 +65,8 @@ func SetupRouter() *gin.Engine {
 			auth.GET("/logout", middleware.AuthorizeJWT(jwtService), authController.Logout)
 		}
 
-		routes := v1.Group("/", middleware.AuthorizeJWT(jwtService))
+		routes := v1.Group("/")
+		// routes := v1.Group("/", middleware.AuthorizeJWT(jwtService))
 		{
 			users := routes.Group("/users")
 			{
@@ -76,13 +77,13 @@ func SetupRouter() *gin.Engine {
 				users.DELETE("/:id", userController.Delete)
 			}
 
-			todo := routes.Group("/todo")
+			role := routes.Group("/roles")
 			{
-				todo.GET("", todoController.Index)
-				todo.POST("", todoController.Create)
-				todo.GET("/:id", todoController.Show)
-				todo.PUT("/:id", todoController.Update)
-				todo.DELETE("/:id", todoController.Delete)
+				role.GET("", roleController.Index)
+				role.POST("", roleController.Create)
+				role.GET("/:id", roleController.Show)
+				role.PUT("/:id", roleController.Update)
+				role.DELETE("/:id", roleController.Delete)
 			}
 		}
 	}

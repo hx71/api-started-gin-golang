@@ -6,21 +6,20 @@ import (
 	"gorm.io/gorm"
 )
 
-type Todo struct {
+type Role struct {
 	ID        string         `gorm:"primary_key, not null" json:"id"  binding:"omitempty,uuid"`
+	Code      string         `json:"code"`
 	Name      string         `json:"name"`
-	UserID    string         `json:"user_id"  foreigen_key:"true"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at"`
 }
 
-func (Todos) TableName() string { return "todos" }
+func (Roles) TableName() string { return "roles" }
 
-type Todos struct {
+type Roles struct {
 	ID        string         `gorm:"primary_key, not null" json:"id"  binding:"omitempty,uuid"`
+	Code      string         `json:"code"`
 	Name      string         `json:"name"`
-	NameUser  string         `json:"name_user"`
-	UserID    string         `json:"user_id"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at"`
 }

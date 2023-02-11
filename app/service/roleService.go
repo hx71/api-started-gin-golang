@@ -14,56 +14,56 @@ import (
 	"github.com/mashingan/smapping"
 )
 
-//TodoService is a ....
-type TodoService interface {
-	Create(model dto.TodoCreateValidation) error
-	Show(id string) models.Todos
-	Update(model dto.TodoCreateValidation) error
+//RoleService is a ....
+type RoleService interface {
+	Create(req dto.RoleCreateValidation) error
+	Show(id string) models.Roles
+	Update(req dto.RoleCreateValidation) error
 	Delete(id string) error
 	Pagination(ctx *gin.Context, pagination *helpers.Pagination) response.Response
 }
 
-type todoService struct {
-	todoRepository repository.TodoRepository
+type roleService struct {
+	roleRepository repository.RoleRepository
 }
 
-//NewTodoService .....
-func NewTodoService(todoRepo repository.TodoRepository) TodoService {
-	return &todoService{
-		todoRepository: todoRepo,
+//NewRoleService .....
+func NewRoleService(roleRepo repository.RoleRepository) RoleService {
+	return &roleService{
+		roleRepository: roleRepo,
 	}
 }
 
-func (service *todoService) Create(model dto.TodoCreateValidation) error {
-	todo := models.Todo{}
-	todo.ID = uuid.NewString()
-	err := smapping.FillStruct(&todo, smapping.MapFields(&model))
+func (service *roleService) Create(req dto.RoleCreateValidation) error {
+	role := models.Role{}
+	role.ID = uuid.NewString()
+	err := smapping.FillStruct(&role, smapping.MapFields(&req))
 	if err != nil {
 		log.Fatalf("Failed map %v: ", err)
 	}
-	return service.todoRepository.Create(todo)
+	return service.roleRepository.Create(role)
 }
 
-func (service *todoService) Show(id string) models.Todos {
-	return service.todoRepository.Show(id)
+func (service *roleService) Show(id string) models.Roles {
+	return service.roleRepository.Show(id)
 }
 
-func (service *todoService) Update(model dto.TodoCreateValidation) error {
-	todo := models.Todo{}
-	err := smapping.FillStruct(&todo, smapping.MapFields(&model))
+func (service *roleService) Update(req dto.RoleCreateValidation) error {
+	role := models.Role{}
+	err := smapping.FillStruct(&role, smapping.MapFields(&req))
 	if err != nil {
 		log.Fatalf("Failed map %v: ", err)
 	}
-	return service.todoRepository.Update(todo)
+	return service.roleRepository.Update(role)
 }
 
-func (service *todoService) Delete(id string) error {
-	return service.todoRepository.Delete(id)
+func (service *roleService) Delete(id string) error {
+	return service.roleRepository.Delete(id)
 }
 
-func (r *todoService) Pagination(context *gin.Context, pagination *helpers.Pagination) response.Response {
+func (r *roleService) Pagination(context *gin.Context, pagination *helpers.Pagination) response.Response {
 
-	operationResult, totalPages := r.todoRepository.Pagination(pagination)
+	operationResult, totalPages := r.roleRepository.Pagination(pagination)
 
 	if operationResult.Error != nil {
 		return response.Response{Status: false, Message: operationResult.Error.Error()}
