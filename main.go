@@ -13,7 +13,7 @@ import (
 // @in header
 // @name Authorization
 // @host localhost:1234
-// @BasePath /api/v1
+// @BasePath /
 // @schemes http
 func main() {
 

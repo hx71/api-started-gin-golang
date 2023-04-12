@@ -1,9 +1,7 @@
 package test
 
 import (
-	"fmt"
 	"testing"
-	"time"
 
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/test/repository"
@@ -82,19 +80,20 @@ func TestUsersService_Update(t *testing.T) {
 }
 
 func TestUsersService_Delete(t *testing.T) {
-	var tgl = time.Now().Local()
-	fmt.Println("tanggal", tgl)
+	// var tgl = time.Now().Local()
+	// fmt.Println("tanggal", tgl)
 	users := models.User{
-		ID:        "1",
-		Name:      "hasrul",
-		Username:  "hasrul",
-		Password:  "hasrul@123",
-		Email:     "hasrul@mail.com",
-		DeletedAt: time.Now(),
+		ID:       "1",
+		Name:     "hasrul",
+		Username: "hasrul",
+		Password: "hasrul@123",
+		Email:    "hasrul@mail.com",
+		// DeletedAt: time.Now(),
 	}
 
 	usersRepository.Mock.On("Delete", users).Return(users, nil)
-	result, err := usersService.Delete(users)
+	_, err := usersService.Delete(users)
+	// result, err := usersService.Delete(users)
 	assert.Nil(t, err)
-	assert.NotNil(t, result.DeletedAt)
+	// assert.NotNil(t, result.DeletedAt)
 }

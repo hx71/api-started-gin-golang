@@ -10,53 +10,52 @@ import (
 	"gorm.io/gorm"
 )
 
-type TodoRepository interface {
-	Create(model models.Todo) error
-	Show(id string) models.Todos
-	Update(model models.Todo) error
+type RoleRepository interface {
+	Create(model models.Role) error
+	Show(id string) models.Roles
+	Update(model models.Role) error
 	Delete(id string) error
 	Pagination(*helpers.Pagination) (RepositoryResult, int)
 }
 
-type todoConnection struct {
+type roleConnection struct {
 	connection *gorm.DB
 }
 
-//NewTodoRepository is creates a new instance of TodoRepository
-func NewTodoRepository(db *gorm.DB) TodoRepository {
-	return &todoConnection{
+//NewRoleRepository is creates a new instance of RoleRepository
+func NewRoleRepository(db *gorm.DB) RoleRepository {
+	return &roleConnection{
 		connection: db,
 	}
 }
 
-func (db *todoConnection) Create(model models.Todo) error {
+func (db *roleConnection) Create(model models.Role) error {
 	return db.connection.Save(&model).Error
 }
 
-func (db *todoConnection) Show(id string) models.Todos {
-	var todo models.Todos
-	db.connection.Table("todos").
-		Select("todos.*, users.id, users.name as name_user").
-		Joins("LEFT JOIN users on users.id = todos.user_id").
-		Where("todos.id = ?", id).
-		Where("todos.created_at is null").
-		Scan(&todo)
-	return todo
+func (db *roleConnection) Show(id string) (role models.Roles) {
+	db.connection.Where("id = ?", id).First(&role)
+	// db.connection.Table("roles").
+	// 	Select("roles.*, users.id, users.name as name_user").
+	// 	Joins("LEFT JOIN users on users.id = roles.user_id").
+	// 	Where("roles.id = ?", id).
+	// 	Where("roles.created_at is null").
+	// 	Scan(&role)
+	return role
 }
 
-func (db *todoConnection) Update(model models.Todo) error {
+func (db *roleConnection) Update(model models.Role) error {
 	return db.connection.Updates(&model).Error
 }
 
-func (db *todoConnection) Delete(id string) error {
-	var todo models.Todos
-	db.connection.Find(&todo, "id = ?", id)
-	return db.connection.Delete(&todo).Error
+func (db *roleConnection) Delete(id string) error {
+	var role models.Roles
+	return db.connection.Where("id = ?", id).Delete(&role).Error
 }
 
-func (db *todoConnection) Pagination(pagination *helpers.Pagination) (RepositoryResult, int) {
+func (db *roleConnection) Pagination(pagination *helpers.Pagination) (RepositoryResult, int) {
 
-	var records []models.Todo
+	var records []models.Role
 	var totalRows int64
 	totalPages, fromRow, toRow := 0, 0, 0
 
@@ -107,12 +106,12 @@ func (db *todoConnection) Pagination(pagination *helpers.Pagination) (Repository
 			where = whereEquals + whereLike
 		}
 		find = find.Where(where)
-		errCount := db.connection.Model(&models.Todo{}).Where(where).Count(&totalRows).Error
+		errCount := db.connection.Model(&models.Role{}).Where(where).Count(&totalRows).Error
 		if errCount != nil {
 			return RepositoryResult{Error: errCount}, totalPages
 		}
 	} else {
-		errCount := db.connection.Model(&models.Todo{}).Count(&totalRows).Error
+		errCount := db.connection.Model(&models.Role{}).Count(&totalRows).Error
 		if errCount != nil {
 			return RepositoryResult{Error: errCount}, totalPages
 		}

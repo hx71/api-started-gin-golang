@@ -1,4 +1,4 @@
-basePath: /api/v1
+basePath: /
 definitions:
   engine.ResponseStatus:
     properties:
@@ -23,89 +23,49 @@ info:
   title: Swagger for [Backend API Services]
   version: "1.0"
 paths:
-  /api/v1/todo:
+  /api/v1/roles:
     get:
       consumes:
       - application/json
       produces:
       - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/engine.ResponseSuccess'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/engine.ResponseStatus'
+      responses: {}
       tags:
-      - Todo
+      - Roles
     post:
       consumes:
       - application/json
       produces:
       - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/engine.ResponseSuccess'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/engine.ResponseStatus'
+      responses: {}
       tags:
-      - Todo
-  /api/v1/todo/{id}:
+      - Roles
+  /api/v1/roles/{id}:
     delete:
       consumes:
       - application/json
       produces:
       - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/engine.ResponseSuccess'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/engine.ResponseStatus'
+      responses: {}
       tags:
-      - Todo
+      - Roles
     get:
       consumes:
       - application/json
       produces:
       - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/engine.ResponseSuccess'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/engine.ResponseStatus'
+      responses: {}
       tags:
-      - Todo
+      - Roles
     put:
       consumes:
       - application/json
       produces:
       - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/engine.ResponseSuccess'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/engine.ResponseStatus'
+      responses: {}
       tags:
-      - Todo
-  /api/v1/version:
+      - Roles
+  /version:
     get:
       consumes:
       - application/json

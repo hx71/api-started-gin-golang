@@ -10,9 +10,9 @@
         "version": "1.0"
     },
     "host": "localhost:1234",
-    "basePath": "/api/v1",
+    "basePath": "/",
     "paths": {
-        "/api/v1/todo": {
+        "/api/v1/roles": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -21,22 +21,9 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Todo"
+                    "Roles"
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseSuccess"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseStatus"
-                        }
-                    }
-                }
+                "responses": {}
             },
             "post": {
                 "consumes": [
@@ -46,25 +33,12 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Todo"
+                    "Roles"
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseSuccess"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseStatus"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
-        "/api/v1/todo/{id}": {
+        "/api/v1/roles/{id}": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -73,22 +47,9 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Todo"
+                    "Roles"
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseSuccess"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseStatus"
-                        }
-                    }
-                }
+                "responses": {}
             },
             "put": {
                 "consumes": [
@@ -98,22 +59,9 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Todo"
+                    "Roles"
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseSuccess"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseStatus"
-                        }
-                    }
-                }
+                "responses": {}
             },
             "delete": {
                 "consumes": [
@@ -123,25 +71,12 @@
                     "application/json"
                 ],
                 "tags": [
-                    "Todo"
+                    "Roles"
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseSuccess"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseStatus"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
-        "/api/v1/version": {
+        "/version": {
             "get": {
                 "consumes": [
                     "application/json"

@@ -16,7 +16,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/todo": {
+        "/api/v1/roles": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -25,22 +25,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Todo"
+                    "Roles"
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseSuccess"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseStatus"
-                        }
-                    }
-                }
+                "responses": {}
             },
             "post": {
                 "consumes": [
@@ -50,25 +37,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Todo"
+                    "Roles"
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseSuccess"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseStatus"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
-        "/api/v1/todo/{id}": {
+        "/api/v1/roles/{id}": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -77,22 +51,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Todo"
+                    "Roles"
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseSuccess"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseStatus"
-                        }
-                    }
-                }
+                "responses": {}
             },
             "put": {
                 "consumes": [
@@ -102,22 +63,9 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Todo"
+                    "Roles"
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseSuccess"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseStatus"
-                        }
-                    }
-                }
+                "responses": {}
             },
             "delete": {
                 "consumes": [
@@ -127,25 +75,12 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "Todo"
+                    "Roles"
                 ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseSuccess"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/engine.ResponseStatus"
-                        }
-                    }
-                }
+                "responses": {}
             }
         },
-        "/api/v1/version": {
+        "/version": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -212,7 +147,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "localhost:1234",
-	BasePath:         "/api/v1",
+	BasePath:         "/",
 	Schemes:          []string{"http"},
 	Title:            "Swagger for [Backend API Services]",
 	Description:      "This is a document for API use in [Backend API Services]",
