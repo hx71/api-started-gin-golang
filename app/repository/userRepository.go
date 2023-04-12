@@ -46,9 +46,8 @@ func (db *userConnection) Create(model models.User) error {
 	return db.connection.Save(&model).Error
 }
 
-func (db *userConnection) Show(id string) models.User {
-	var user models.User
-	db.connection.Find(&user, "id = ?", id)
+func (db *userConnection) Show(id string) (user models.User) {
+	db.connection.Where("id = ?", id).First(&user)
 	return user
 }
 

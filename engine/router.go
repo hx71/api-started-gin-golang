@@ -2,12 +2,15 @@ package engine
 
 import (
 	"log"
+	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/controllers"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/repository"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/config"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helpers"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/middleware"
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
@@ -51,11 +54,24 @@ func SetupRouter() *gin.Engine {
 	r.Use(gin.Recovery())
 	r.Use(CORSMiddleware())
 
+	//Logging
+	r.Use(helpers.LoggerToFile())
+
 	r.GET("/swagger/*any", swagger.WrapHandler(swaggerFiles.Handler))
 
 	// Routes
 	v1 := r.Group("api/v1")
 	{
+		currentTime := time.Now()
+		crnTime := currentTime.Format("01-02-2006")
+		// log file
+		fileLog := "log-file-" + crnTime + ".log"
+
+		_, err := os.OpenFile("logging/"+fileLog, os.O_RDONLY, 0644)
+		if err != nil {
+			os.OpenFile("logging/"+fileLog, os.O_CREATE, 0644)
+		}
+
 		v1.GET("/version", authController.Version)
 
 		auth := v1.Group("auth")

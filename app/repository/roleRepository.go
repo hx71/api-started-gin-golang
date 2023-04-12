@@ -33,10 +33,8 @@ func (db *roleConnection) Create(model models.Role) error {
 	return db.connection.Save(&model).Error
 }
 
-func (db *roleConnection) Show(id string) models.Roles {
-	var role models.Roles
-	db.connection.Find(&role, "id = ?", id)
-
+func (db *roleConnection) Show(id string) (role models.Roles) {
+	db.connection.Where("id = ?", id).First(&role)
 	// db.connection.Table("roles").
 	// 	Select("roles.*, users.id, users.name as name_user").
 	// 	Joins("LEFT JOIN users on users.id = roles.user_id").
@@ -52,8 +50,7 @@ func (db *roleConnection) Update(model models.Role) error {
 
 func (db *roleConnection) Delete(id string) error {
 	var role models.Roles
-	db.connection.Find(&role, "id = ?", id)
-	return db.connection.Delete(&role).Error
+	return db.connection.Where("id = ?", id).Delete(&role).Error
 }
 
 func (db *roleConnection) Pagination(pagination *helpers.Pagination) (RepositoryResult, int) {
