@@ -16,6 +16,16 @@ definitions:
       status:
         type: boolean
     type: object
+  engine.Role:
+    properties:
+      code:
+        type: string
+      name:
+        type: string
+    required:
+    - code
+    - name
+    type: object
 host: localhost:1234
 info:
   contact: {}
@@ -23,7 +33,7 @@ info:
   title: Swagger for [Backend API Services]
   version: "1.0"
 paths:
-  /api/v1/roles:
+  /api/v1/menus:
     get:
       consumes:
       - application/json
@@ -31,7 +41,7 @@ paths:
       - application/json
       responses: {}
       tags:
-      - Roles
+      - Menus
     post:
       consumes:
       - application/json
@@ -39,8 +49,8 @@ paths:
       - application/json
       responses: {}
       tags:
-      - Roles
-  /api/v1/roles/{id}:
+      - Menus
+  /api/v1/menus/{id}:
     delete:
       consumes:
       - application/json
@@ -48,7 +58,7 @@ paths:
       - application/json
       responses: {}
       tags:
-      - Roles
+      - Menus
     get:
       consumes:
       - application/json
@@ -56,13 +66,96 @@ paths:
       - application/json
       responses: {}
       tags:
-      - Roles
+      - Menus
     put:
       consumes:
       - application/json
       produces:
       - application/json
       responses: {}
+      tags:
+      - Menus
+  /api/v1/roles:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      tags:
+      - Roles
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Pass session information to DBaaS Parameter
+        in: body
+        name: filter
+        required: true
+        schema:
+          $ref: '#/definitions/engine.Role'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      tags:
+      - Roles
+  /api/v1/roles/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Pass session information to DBaaS Parameter
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      tags:
+      - Roles
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Pass session information to DBaaS Parameter
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      tags:
+      - Roles
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Pass session information to DBaaS Parameter
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Pass session information to DBaaS Parameter
+        in: body
+        name: filter
+        required: true
+        schema:
+          $ref: '#/definitions/engine.Role'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
       tags:
       - Roles
   /version:

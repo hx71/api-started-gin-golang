@@ -28,19 +28,23 @@ func init() {
 }
 
 var (
-	db             *gorm.DB                  = config.SetupConnection()
-	jwtService     service.JWTService        = service.NewJWTService()
+	db *gorm.DB = config.SetupConnection()
+
+	jwtService service.JWTService = service.NewJWTService()
+
 	userRepository repository.UserRepository = repository.NewUserRepository(db)
+	roleRepository repository.RoleRepository = repository.NewRoleRepository(db)
+	menuRepository repository.MenuRepository = repository.NewMenuRepository(db)
 
-	authService    service.AuthService        = service.NewAuthService(userRepository)
+	authService service.AuthService = service.NewAuthService(userRepository)
+	userService service.UserService = service.NewUserService(userRepository)
+	roleService service.RoleService = service.NewRoleService(roleRepository)
+	menuService service.MenuService = service.NewMenuService(menuRepository)
+
 	authController controllers.AuthController = controllers.NewAuthController(authService, jwtService)
-
-	userService    service.UserService        = service.NewUserService(userRepository)
 	userController controllers.UserController = controllers.NewUserController(userService, jwtService)
-
-	roleRepository repository.RoleRepository  = repository.NewRoleRepository(db)
-	roleService    service.RoleService        = service.NewRoleService(roleRepository)
 	roleController controllers.RoleController = controllers.NewRoleController(roleService, jwtService)
+	menuController controllers.MenuController = controllers.NewMenuController(menuService, jwtService)
 )
 
 func SetupRouter() *gin.Engine {
@@ -100,6 +104,15 @@ func SetupRouter() *gin.Engine {
 				role.GET("/:id", roleController.Show)
 				role.PUT("/:id", roleController.Update)
 				role.DELETE("/:id", roleController.Delete)
+			}
+
+			menu := routes.Group("/menus")
+			{
+				menu.GET("", menuController.Index)
+				menu.POST("", menuController.Create)
+				menu.GET("/:id", menuController.Show)
+				menu.PUT("/:id", menuController.Update)
+				menu.DELETE("/:id", menuController.Delete)
 			}
 		}
 	}
