@@ -8,7 +8,7 @@ import (
 
 type Role struct {
 	ID        string         `gorm:"primary_key, not null" json:"id"  binding:"omitempty,uuid"`
-	Code      string         `json:"code"`
+	Code      string         `gorm:"unique" json:"code" binding:"required"`
 	Name      string         `json:"name"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`

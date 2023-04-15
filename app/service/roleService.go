@@ -19,7 +19,7 @@ type RoleService interface {
 	Create(req dto.RoleCreateValidation) error
 	Show(id string) models.Roles
 	Update(req dto.RoleCreateValidation) error
-	Delete(id string) error
+	Delete(model models.Roles) error
 	Pagination(ctx *gin.Context, pagination *helpers.Pagination) response.Response
 }
 
@@ -57,8 +57,8 @@ func (service *roleService) Update(req dto.RoleCreateValidation) error {
 	return service.roleRepository.Update(role)
 }
 
-func (service *roleService) Delete(id string) error {
-	return service.roleRepository.Delete(id)
+func (service *roleService) Delete(model models.Roles) error {
+	return service.roleRepository.Delete(model)
 }
 
 func (r *roleService) Pagination(context *gin.Context, pagination *helpers.Pagination) response.Response {

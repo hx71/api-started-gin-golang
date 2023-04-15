@@ -56,8 +56,13 @@ func (s *menuController) Create(ctx *gin.Context) {
 		return
 	}
 
-	user := s.menuService.Create(req)
-	response := response.ResponseSuccess("created succeess", user)
+	err = s.menuService.Create(req)
+	if err != nil {
+		response := response.ResponseError("failed to process created", err.Error())
+		ctx.JSON(http.StatusBadRequest, response)
+		return
+	}
+	response := response.ResultSuccess("created success")
 	ctx.JSON(http.StatusCreated, response)
 }
 
@@ -90,11 +95,11 @@ func (c *menuController) Update(ctx *gin.Context) {
 		}
 		err = c.menuService.Update(req)
 		if err != nil {
-			response := response.ResponseError("update failed", err.Error())
+			response := response.ResponseError("failed to process deleted", err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
-		response := response.ResponseSuccess("update success", nil)
+		response := response.ResultSuccess("updated success")
 		ctx.JSON(http.StatusCreated, response)
 	}
 }
@@ -105,8 +110,13 @@ func (c *menuController) Delete(ctx *gin.Context) {
 		response := response.ResponseError("data not found", "no data with given id")
 		ctx.JSON(http.StatusNotFound, response)
 	} else {
-		role := c.menuService.Delete(id)
-		response := response.ResponseSuccess("deleted success", role)
+		err := c.menuService.Delete(id)
+		if err != nil {
+			response := response.ResponseError("failed to process deleted", err.Error())
+			ctx.JSON(http.StatusNotFound, response)
+			return
+		}
+		response := response.ResultSuccess("deleted success")
 		ctx.JSON(http.StatusOK, response)
 	}
 }

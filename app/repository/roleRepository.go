@@ -14,7 +14,7 @@ type RoleRepository interface {
 	Create(model models.Role) error
 	Show(id string) models.Roles
 	Update(model models.Role) error
-	Delete(id string) error
+	Delete(model models.Roles) error
 	Pagination(*helpers.Pagination) (RepositoryResult, int)
 }
 
@@ -48,9 +48,8 @@ func (db *roleConnection) Update(model models.Role) error {
 	return db.connection.Updates(&model).Error
 }
 
-func (db *roleConnection) Delete(id string) error {
-	var role models.Roles
-	return db.connection.Where("id = ?", id).Delete(&role).Error
+func (db *roleConnection) Delete(model models.Roles) error {
+	return db.connection.Delete(&model).Error
 }
 
 func (db *roleConnection) Pagination(pagination *helpers.Pagination) (RepositoryResult, int) {

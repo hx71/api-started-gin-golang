@@ -13,11 +13,10 @@ import (
 )
 
 type UserRepository interface {
-	Index() []models.User
 	Create(model models.User) error
 	Show(id string) models.User
 	Update(model models.User) error
-	Delete(user models.User) error
+	Delete(model models.User) error
 	Pagination(*helpers.Pagination) (RepositoryResult, int)
 
 	VerifyCredential(email string, password string) interface{}
@@ -35,12 +34,6 @@ func NewUserRepository(db *gorm.DB) UserRepository {
 	}
 }
 
-func (db *userConnection) Index() []models.User {
-	var user []models.User
-	db.connection.Find(&user)
-	return user
-}
-
 func (db *userConnection) Create(model models.User) error {
 	model.Password = hashAndSalt([]byte(model.Password))
 	return db.connection.Save(&model).Error
@@ -55,8 +48,8 @@ func (db *userConnection) Update(model models.User) error {
 	return db.connection.Updates(&model).Error
 }
 
-func (db *userConnection) Delete(user models.User) error {
-	return db.connection.Delete(&user).Error
+func (db *userConnection) Delete(model models.User) error {
+	return db.connection.Delete(&model).Error
 }
 
 func (db *userConnection) VerifyCredential(email string, password string) interface{} {

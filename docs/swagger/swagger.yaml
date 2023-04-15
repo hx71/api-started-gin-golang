@@ -1,5 +1,33 @@
 basePath: /
 definitions:
+  engine.Menu:
+    properties:
+      icon:
+        type: string
+      index:
+        type: integer
+      is_active:
+        type: boolean
+      main_menu:
+        type: string
+      name:
+        type: string
+      parent:
+        type: integer
+      sort:
+        type: integer
+      sub_parent:
+        type: boolean
+      url:
+        type: string
+    required:
+    - icon
+    - index
+    - main_menu
+    - name
+    - sort
+    - url
+    type: object
   engine.ResponseStatus:
     properties:
       data: {}
@@ -26,6 +54,22 @@ definitions:
     - code
     - name
     type: object
+  engine.User:
+    properties:
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - name
+    - password
+    - username
+    type: object
 host: localhost:1234
 info:
   contact: {}
@@ -37,48 +81,125 @@ paths:
     get:
       consumes:
       - application/json
+      parameters:
+      - description: Limit Per Page
+        in: query
+        name: limit
+        type: integer
+      - description: Page Number
+        in: query
+        name: page
+        type: integer
+      - description: 'Sort By {ex: created_at asc | desc}'
+        in: query
+        name: sort
+        type: string
+      - description: 'Seraching by column {ex: id} action {ex: equals | contains |
+          in}'
+        in: query
+        name: id.equals
+        type: string
       produces:
       - application/json
       responses: {}
+      security:
+      - BearerAuth: []
       tags:
       - Menus
     post:
       consumes:
       - application/json
+      parameters:
+      - description: Pass session information to DBaaS Parameter
+        in: body
+        name: filter
+        required: true
+        schema:
+          $ref: '#/definitions/engine.Menu'
       produces:
       - application/json
       responses: {}
+      security:
+      - BearerAuth: []
       tags:
       - Menus
   /api/v1/menus/{id}:
     delete:
       consumes:
       - application/json
+      parameters:
+      - description: Pass session information to DBaaS Parameter
+        in: path
+        name: id
+        required: true
+        type: string
       produces:
       - application/json
       responses: {}
+      security:
+      - BearerAuth: []
       tags:
       - Menus
     get:
       consumes:
       - application/json
+      parameters:
+      - description: Pass session information to DBaaS Parameter
+        in: path
+        name: id
+        required: true
+        type: string
       produces:
       - application/json
       responses: {}
+      security:
+      - BearerAuth: []
       tags:
       - Menus
     put:
       consumes:
       - application/json
+      parameters:
+      - description: Pass session information to DBaaS Parameter
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Pass session information to DBaaS Parameter
+        in: body
+        name: filter
+        required: true
+        schema:
+          $ref: '#/definitions/engine.Menu'
       produces:
       - application/json
       responses: {}
+      security:
+      - BearerAuth: []
       tags:
       - Menus
   /api/v1/roles:
     get:
       consumes:
       - application/json
+      parameters:
+      - description: Limit Per Page
+        in: query
+        name: limit
+        type: integer
+      - description: Page Number
+        in: query
+        name: page
+        type: integer
+      - description: 'Sort By {ex: created_at asc | desc}'
+        in: query
+        name: sort
+        type: string
+      - description: 'Seraching by column {ex: id} action {ex: equals | contains |
+          in}'
+        in: query
+        name: id.equals
+        type: string
       produces:
       - application/json
       responses: {}
@@ -158,7 +279,108 @@ paths:
       - BearerAuth: []
       tags:
       - Roles
-  /version:
+  /api/v1/users:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Limit Per Page
+        in: query
+        name: limit
+        type: integer
+      - description: Page Number
+        in: query
+        name: page
+        type: integer
+      - description: 'Sort By {ex: created_at asc | desc}'
+        in: query
+        name: sort
+        type: string
+      - description: 'Seraching by column {ex: id} action {ex: equals | contains |
+          in}'
+        in: query
+        name: id.equals
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Pass session information to DBaaS Parameter
+        in: body
+        name: filter
+        required: true
+        schema:
+          $ref: '#/definitions/engine.User'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      tags:
+      - Users
+  /api/v1/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Pass session information to DBaaS Parameter
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      tags:
+      - Users
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Pass session information to DBaaS Parameter
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Pass session information to DBaaS Parameter
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Pass session information to DBaaS Parameter
+        in: body
+        name: filter
+        required: true
+        schema:
+          $ref: '#/definitions/engine.User'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      tags:
+      - Users
+  /api/v1/version:
     get:
       consumes:
       - application/json

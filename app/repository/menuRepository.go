@@ -44,8 +44,7 @@ func (db *menuConnection) Update(model models.Menu) error {
 }
 
 func (db *menuConnection) Delete(id string) error {
-	var role models.Menus
-	return db.connection.Where("id = ?", id).Delete(&role).Error
+	return db.connection.Where("id = ?", id).Delete(&models.Menus{}).Error
 }
 
 func (db *menuConnection) Pagination(pagination *helpers.Pagination) (RepositoryResult, int) {

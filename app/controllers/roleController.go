@@ -62,7 +62,7 @@ func (s *roleController) Create(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
-	response := response.ResultSuccess("created succeess")
+	response := response.ResultSuccess("created success")
 	ctx.JSON(http.StatusCreated, response)
 }
 
@@ -78,9 +78,9 @@ func (s *roleController) Show(ctx *gin.Context) {
 	}
 }
 
-func (c *roleController) Update(ctx *gin.Context) {
+func (s *roleController) Update(ctx *gin.Context) {
 	id := ctx.Param("id")
-	var role models.Roles = c.roleService.Show(id)
+	var role models.Roles = s.roleService.Show(id)
 	if role.ID == "" {
 		res := response.ResponseError("data not found", "no data with given id")
 		ctx.JSON(http.StatusNotFound, res)
@@ -93,7 +93,8 @@ func (c *roleController) Update(ctx *gin.Context) {
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
-		err = c.roleService.Update(req)
+
+		err = s.roleService.Update(req)
 		if err != nil {
 			response := response.ResponseError("failed to process updated", err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
@@ -104,21 +105,21 @@ func (c *roleController) Update(ctx *gin.Context) {
 	}
 }
 
-func (c *roleController) Delete(ctx *gin.Context) {
+func (s *roleController) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
-	if id == "" {
+	var role models.Roles = s.roleService.Show(id)
+	if role.ID == "" {
 		response := response.ResponseError("data not found", "no data with given id")
 		ctx.JSON(http.StatusNotFound, response)
-		return
+	} else {
+		err := s.roleService.Delete(role)
+		if err != nil {
+			response := response.ResponseError("failed to process deleted", err.Error())
+			ctx.JSON(http.StatusNotFound, response)
+			return
+		}
+		response := response.ResultSuccess("deleted success")
+		ctx.JSON(http.StatusOK, response)
 	}
-
-	err := c.roleService.Delete(id)
-	if err != nil {
-		response := response.ResponseError("failed to process deleted", err.Error())
-		ctx.JSON(http.StatusNotFound, response)
-		return
-	}
-	response := response.ResultSuccess("deleted success")
-	ctx.JSON(http.StatusOK, response)
 
 }
