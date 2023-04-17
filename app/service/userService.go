@@ -16,7 +16,6 @@ import (
 
 //UserService is a ....
 type UserService interface {
-	Index() []models.User
 	Create(model dto.UserCreateValidation) error
 	Show(id string) models.User
 	Update(model dto.UserUpdateValidation) error
@@ -34,10 +33,6 @@ func NewUserService(userRepo repository.UserRepository) UserService {
 	return &userService{
 		userRepository: userRepo,
 	}
-}
-
-func (service *userService) Index() []models.User {
-	return service.userRepository.Index()
 }
 
 func (service *userService) Create(model dto.UserCreateValidation) error {
@@ -63,8 +58,8 @@ func (service *userService) Update(model dto.UserUpdateValidation) error {
 	return service.userRepository.Update(user)
 }
 
-func (service *userService) Delete(user models.User) error {
-	return service.userRepository.Delete(user)
+func (service *userService) Delete(model models.User) error {
+	return service.userRepository.Delete(model)
 }
 
 func (service *userService) FindByEmail(email string) bool {

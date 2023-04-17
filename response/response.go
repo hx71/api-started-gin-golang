@@ -2,17 +2,24 @@ package response
 
 import "strings"
 
-// Response is used for static shape json return
+type Result struct {
+	Status  bool   `json:"status"`
+	Message string `json:"message"`
+}
+
+// BuildResponse method is to inject data value to dynamic success response
+func ResultSuccess(message string) Result {
+	res := Result{
+		Status:  true,
+		Message: message,
+	}
+	return res
+}
+
 type Response struct {
 	Status  bool        `json:"status"`
 	Message string      `json:"message"`
 	Data    interface{} `json:"data"`
-}
-
-type ResError struct {
-	Status  bool        `json:"status"`
-	Message string      `json:"message"`
-	Errors  interface{} `json:"errors"`
 }
 
 // BuildResponse method is to inject data value to dynamic success response
@@ -23,6 +30,12 @@ func ResponseSuccess(message string, data interface{}) Response {
 		Data:    data,
 	}
 	return res
+}
+
+type ResError struct {
+	Status  bool        `json:"status"`
+	Message string      `json:"message"`
+	Errors  interface{} `json:"errors"`
 }
 
 // BuildErrorResponse method is to inject data value to dynamic failed response

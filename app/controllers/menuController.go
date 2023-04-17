@@ -12,8 +12,8 @@ import (
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
 )
 
-// RoleController is a contract what this controller can do
-type RoleController interface {
+// MenuController is a contract what this controller can do
+type MenuController interface {
 	Index(ctx *gin.Context)
 	Create(ctx *gin.Context)
 	Show(ctx *gin.Context)
@@ -21,22 +21,22 @@ type RoleController interface {
 	Delete(ctx *gin.Context)
 }
 
-type roleController struct {
-	roleService service.RoleService
+type menuController struct {
+	menuService service.MenuService
 	jwtService  service.JWTService
 }
 
-// NewRoleController create a new instances of RoleController
-func NewRoleController(roleServ service.RoleService, jwtServ service.JWTService) RoleController {
-	return &roleController{
-		roleService: roleServ,
+// NewMenuController create a new instances of MenuController
+func NewMenuController(menuServ service.MenuService, jwtServ service.JWTService) MenuController {
+	return &menuController{
+		menuService: menuServ,
 		jwtService:  jwtServ,
 	}
 }
 
-func (s *roleController) Index(ctx *gin.Context) {
+func (s *menuController) Index(ctx *gin.Context) {
 	pagination := helpers.GeneratePaginationRequest(ctx)
-	res := s.roleService.Pagination(ctx, pagination)
+	res := s.menuService.Pagination(ctx, pagination)
 	if !res.Status {
 		response := response.ResponseError("failed to get data role", res.Message)
 		ctx.JSON(http.StatusBadRequest, response)
@@ -46,8 +46,8 @@ func (s *roleController) Index(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-func (s *roleController) Create(ctx *gin.Context) {
-	var req dto.RoleCreateValidation
+func (s *menuController) Create(ctx *gin.Context) {
+	var req dto.MenuCreateValidation
 	req.ID = uuid.NewString()
 	err := ctx.ShouldBind(&req)
 	if err != nil {
@@ -56,7 +56,7 @@ func (s *roleController) Create(ctx *gin.Context) {
 		return
 	}
 
-	err = s.roleService.Create(req)
+	err = s.menuService.Create(req)
 	if err != nil {
 		response := response.ResponseError("failed to process created", err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
@@ -66,26 +66,26 @@ func (s *roleController) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, response)
 }
 
-func (s *roleController) Show(ctx *gin.Context) {
+func (s *menuController) Show(ctx *gin.Context) {
 	id := ctx.Param("id")
-	var role models.Roles = s.roleService.Show(id)
+	var role models.Menus = s.menuService.Show(id)
 	if role.ID == "" {
 		res := response.ResponseError("Data not found", "No data with given id")
 		ctx.JSON(http.StatusNotFound, res)
 	} else {
-		response := response.ResponseSuccess("detail role", role)
+		response := response.ResponseSuccess("detail user", role)
 		ctx.JSON(http.StatusOK, response)
 	}
 }
 
-func (s *roleController) Update(ctx *gin.Context) {
+func (c *menuController) Update(ctx *gin.Context) {
 	id := ctx.Param("id")
-	var role models.Roles = s.roleService.Show(id)
+	var role models.Menus = c.menuService.Show(id)
 	if role.ID == "" {
 		res := response.ResponseError("data not found", "no data with given id")
 		ctx.JSON(http.StatusNotFound, res)
 	} else {
-		var req dto.RoleCreateValidation
+		var req dto.MenuCreateValidation
 		req.ID = id
 		err := ctx.ShouldBind(&req)
 		if err != nil {
@@ -93,10 +93,9 @@ func (s *roleController) Update(ctx *gin.Context) {
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
-
-		err = s.roleService.Update(req)
+		err = c.menuService.Update(req)
 		if err != nil {
-			response := response.ResponseError("failed to process updated", err.Error())
+			response := response.ResponseError("failed to process deleted", err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
@@ -105,14 +104,13 @@ func (s *roleController) Update(ctx *gin.Context) {
 	}
 }
 
-func (s *roleController) Delete(ctx *gin.Context) {
+func (c *menuController) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
-	var role models.Roles = s.roleService.Show(id)
-	if role.ID == "" {
+	if id == "" {
 		response := response.ResponseError("data not found", "no data with given id")
 		ctx.JSON(http.StatusNotFound, response)
 	} else {
-		err := s.roleService.Delete(role)
+		err := c.menuService.Delete(id)
 		if err != nil {
 			response := response.ResponseError("failed to process deleted", err.Error())
 			ctx.JSON(http.StatusNotFound, response)
@@ -121,5 +119,4 @@ func (s *roleController) Delete(ctx *gin.Context) {
 		response := response.ResultSuccess("deleted success")
 		ctx.JSON(http.StatusOK, response)
 	}
-
 }

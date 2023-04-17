@@ -14,56 +14,56 @@ import (
 	"github.com/mashingan/smapping"
 )
 
-//RoleService is a ....
-type RoleService interface {
-	Create(req dto.RoleCreateValidation) error
-	Show(id string) models.Roles
-	Update(req dto.RoleCreateValidation) error
-	Delete(model models.Roles) error
+//MenuService is a ....
+type MenuService interface {
+	Create(req dto.MenuCreateValidation) error
+	Show(id string) models.Menus
+	Update(req dto.MenuCreateValidation) error
+	Delete(id string) error
 	Pagination(ctx *gin.Context, pagination *helpers.Pagination) response.Response
 }
 
-type roleService struct {
-	roleRepository repository.RoleRepository
+type menuService struct {
+	menuRepository repository.MenuRepository
 }
 
-//NewRoleService .....
-func NewRoleService(roleRepo repository.RoleRepository) RoleService {
-	return &roleService{
-		roleRepository: roleRepo,
+//NewMenuService .....
+func NewMenuService(menuRepo repository.MenuRepository) MenuService {
+	return &menuService{
+		menuRepository: menuRepo,
 	}
 }
 
-func (service *roleService) Create(req dto.RoleCreateValidation) error {
-	role := models.Role{}
-	role.ID = uuid.NewString()
-	err := smapping.FillStruct(&role, smapping.MapFields(&req))
+func (service *menuService) Create(req dto.MenuCreateValidation) error {
+	menu := models.Menu{}
+	menu.ID = uuid.NewString()
+	err := smapping.FillStruct(&menu, smapping.MapFields(&req))
 	if err != nil {
 		log.Fatalf("Failed map %v: ", err)
 	}
-	return service.roleRepository.Create(role)
+	return service.menuRepository.Create(menu)
 }
 
-func (service *roleService) Show(id string) models.Roles {
-	return service.roleRepository.Show(id)
+func (service *menuService) Show(id string) models.Menus {
+	return service.menuRepository.Show(id)
 }
 
-func (service *roleService) Update(req dto.RoleCreateValidation) error {
-	role := models.Role{}
-	err := smapping.FillStruct(&role, smapping.MapFields(&req))
+func (service *menuService) Update(req dto.MenuCreateValidation) error {
+	menu := models.Menu{}
+	err := smapping.FillStruct(&menu, smapping.MapFields(&req))
 	if err != nil {
 		log.Fatalf("Failed map %v: ", err)
 	}
-	return service.roleRepository.Update(role)
+	return service.menuRepository.Update(menu)
 }
 
-func (service *roleService) Delete(model models.Roles) error {
-	return service.roleRepository.Delete(model)
+func (service *menuService) Delete(id string) error {
+	return service.menuRepository.Delete(id)
 }
 
-func (r *roleService) Pagination(context *gin.Context, pagination *helpers.Pagination) response.Response {
+func (r *menuService) Pagination(context *gin.Context, pagination *helpers.Pagination) response.Response {
 
-	operationResult, totalPages := r.roleRepository.Pagination(pagination)
+	operationResult, totalPages := r.menuRepository.Pagination(pagination)
 
 	if operationResult.Error != nil {
 		return response.Response{Status: false, Message: operationResult.Error.Error()}

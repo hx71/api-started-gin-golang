@@ -46,22 +46,27 @@ func (s *userController) Index(ctx *gin.Context) {
 }
 
 func (s *userController) Create(ctx *gin.Context) {
-	var userValidation dto.UserCreateValidation
-	err := ctx.ShouldBind(&userValidation)
+	var req dto.UserCreateValidation
+	err := ctx.ShouldBind(&req)
 	if err != nil {
 		response := response.ResponseError("failed to process request", err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	if !s.userService.FindByEmail(userValidation.Email) {
-		response := response.ResponseError("Failed to process request", "duplicate email")
-		ctx.JSON(http.StatusConflict, response)
-	} else {
-		user := s.userService.Create(userValidation)
-		response := response.ResponseSuccess("created succeess", user)
-		ctx.JSON(http.StatusCreated, response)
+	// if !s.userService.FindByEmail(req.Email) {
+	// 	response := response.ResponseError("Failed to process request", "duplicate email")
+	// 	ctx.JSON(http.StatusConflict, response)
+	// } else {
+	err = s.userService.Create(req)
+	if err != nil {
+		response := response.ResponseError("failed to process created", err.Error())
+		ctx.JSON(http.StatusBadRequest, response)
+		return
 	}
+	response := response.ResultSuccess("created success")
+	ctx.JSON(http.StatusCreated, response)
+	// }
 }
 
 func (s *userController) Show(ctx *gin.Context) {
@@ -105,12 +110,17 @@ func (c *userController) Update(ctx *gin.Context) {
 func (c *userController) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var user models.User = c.userService.Show(id)
-	if (user == models.User{}) {
+	if user.ID == "" {
 		response := response.ResponseError("data not found", "no data with given id")
 		ctx.JSON(http.StatusNotFound, response)
 	} else {
-		user := c.userService.Delete(user)
-		response := response.ResponseSuccess("deleted success", user)
+		err := c.userService.Delete(user)
+		if err != nil {
+			response := response.ResponseError("failed to process deleted", err.Error())
+			ctx.JSON(http.StatusNotFound, response)
+			return
+		}
+		response := response.ResultSuccess("deleted success")
 		ctx.JSON(http.StatusOK, response)
 	}
 }

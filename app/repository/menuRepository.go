@@ -10,51 +10,46 @@ import (
 	"gorm.io/gorm"
 )
 
-type RoleRepository interface {
-	Create(model models.Role) error
-	Show(id string) models.Roles
-	Update(model models.Role) error
-	Delete(model models.Roles) error
+type MenuRepository interface {
+	Create(model models.Menu) error
+	Show(id string) models.Menus
+	Update(model models.Menu) error
+	Delete(id string) error
 	Pagination(*helpers.Pagination) (RepositoryResult, int)
 }
 
-type roleConnection struct {
+type menuConnection struct {
 	connection *gorm.DB
 }
 
-//NewRoleRepository is creates a new instance of RoleRepository
-func NewRoleRepository(db *gorm.DB) RoleRepository {
-	return &roleConnection{
+//NewMenuRepository is creates a new instance of MenuRepository
+func NewMenuRepository(db *gorm.DB) MenuRepository {
+	return &menuConnection{
 		connection: db,
 	}
 }
 
-func (db *roleConnection) Create(model models.Role) error {
+func (db *menuConnection) Create(model models.Menu) error {
 	return db.connection.Save(&model).Error
 }
 
-func (db *roleConnection) Show(id string) (role models.Roles) {
+func (db *menuConnection) Show(id string) (role models.Menus) {
 	db.connection.Where("id = ?", id).First(&role)
-	// db.connection.Table("roles").
-	// 	Select("roles.*, users.id, users.name as name_user").
-	// 	Joins("LEFT JOIN users on users.id = roles.user_id").
-	// 	Where("roles.id = ?", id).
-	// 	Where("roles.created_at is null").
-	// 	Scan(&role)
 	return role
 }
 
-func (db *roleConnection) Update(model models.Role) error {
+func (db *menuConnection) Update(model models.Menu) error {
+	fmt.Println(model.IsActive)
 	return db.connection.Updates(&model).Error
 }
 
-func (db *roleConnection) Delete(model models.Roles) error {
-	return db.connection.Delete(&model).Error
+func (db *menuConnection) Delete(id string) error {
+	return db.connection.Where("id = ?", id).Delete(&models.Menus{}).Error
 }
 
-func (db *roleConnection) Pagination(pagination *helpers.Pagination) (RepositoryResult, int) {
+func (db *menuConnection) Pagination(pagination *helpers.Pagination) (RepositoryResult, int) {
 
-	var records []models.Role
+	var records []models.Menu
 	var totalRows int64
 	totalPages, fromRow, toRow := 0, 0, 0
 
@@ -105,12 +100,12 @@ func (db *roleConnection) Pagination(pagination *helpers.Pagination) (Repository
 			where = whereEquals + whereLike
 		}
 		find = find.Where(where)
-		errCount := db.connection.Model(&models.Role{}).Where(where).Count(&totalRows).Error
+		errCount := db.connection.Model(&models.Menu{}).Where(where).Count(&totalRows).Error
 		if errCount != nil {
 			return RepositoryResult{Error: errCount}, totalPages
 		}
 	} else {
-		errCount := db.connection.Model(&models.Role{}).Count(&totalRows).Error
+		errCount := db.connection.Model(&models.Menu{}).Count(&totalRows).Error
 		if errCount != nil {
 			return RepositoryResult{Error: errCount}, totalPages
 		}

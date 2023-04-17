@@ -6,7 +6,7 @@ import (
 
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
 	"github.com/joho/godotenv"
-	"gorm.io/driver/mysql"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -24,12 +24,12 @@ func SetupConnection() *gorm.DB {
 	dbPort := os.Getenv("DB_PORT")
 
 	// // connectio mysql
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", dbUser, dbPass, dbHost, dbPort, dbName)
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	// dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", dbUser, dbPass, dbHost, dbPort, dbName)
+	// db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	// connectio postgres
-	// dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai", dbHost, dbUser, dbPass, dbName, dbPort)
-	// db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai", dbHost, dbUser, dbPass, dbName, dbPort)
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		panic("Failed to create a connection to database")
@@ -39,6 +39,8 @@ func SetupConnection() *gorm.DB {
 	// migrate tables
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models.Role{})
+	db.AutoMigrate(&models.Menu{})
+	db.AutoMigrate(&models.UserMenu{})
 	return db
 }
 
