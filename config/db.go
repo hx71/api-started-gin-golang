@@ -40,6 +40,7 @@ func SetupConnection() *gorm.DB {
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models.Role{})
 	db.AutoMigrate(&models.Menu{})
+	db.AutoMigrate(&models.UserMenu{})
 	return db
 }
 

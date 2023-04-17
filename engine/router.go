@@ -32,19 +32,22 @@ var (
 
 	jwtService service.JWTService = service.NewJWTService()
 
-	userRepository repository.UserRepository = repository.NewUserRepository(db)
-	roleRepository repository.RoleRepository = repository.NewRoleRepository(db)
-	menuRepository repository.MenuRepository = repository.NewMenuRepository(db)
+	userRepository     repository.UserRepository     = repository.NewUserRepository(db)
+	roleRepository     repository.RoleRepository     = repository.NewRoleRepository(db)
+	menuRepository     repository.MenuRepository     = repository.NewMenuRepository(db)
+	userMenuRepository repository.UserMenuRepository = repository.NewUserMenuRepository(db)
 
-	authService service.AuthService = service.NewAuthService(userRepository)
-	userService service.UserService = service.NewUserService(userRepository)
-	roleService service.RoleService = service.NewRoleService(roleRepository)
-	menuService service.MenuService = service.NewMenuService(menuRepository)
+	authService     service.AuthService     = service.NewAuthService(userRepository)
+	userService     service.UserService     = service.NewUserService(userRepository)
+	roleService     service.RoleService     = service.NewRoleService(roleRepository)
+	menuService     service.MenuService     = service.NewMenuService(menuRepository)
+	userMenuService service.UserMenuService = service.NewUserMenuService(userMenuRepository)
 
-	authController controllers.AuthController = controllers.NewAuthController(authService, jwtService)
-	userController controllers.UserController = controllers.NewUserController(userService, jwtService)
-	roleController controllers.RoleController = controllers.NewRoleController(roleService, jwtService)
-	menuController controllers.MenuController = controllers.NewMenuController(menuService, jwtService)
+	authController     controllers.AuthController     = controllers.NewAuthController(authService, jwtService)
+	userController     controllers.UserController     = controllers.NewUserController(userService, jwtService)
+	roleController     controllers.RoleController     = controllers.NewRoleController(roleService, jwtService)
+	menuController     controllers.MenuController     = controllers.NewMenuController(menuService, jwtService)
+	userMenuController controllers.UserMenuController = controllers.NewUserMenuController(userMenuService, jwtService)
 )
 
 func SetupRouter() *gin.Engine {
@@ -113,6 +116,15 @@ func SetupRouter() *gin.Engine {
 				menu.GET("/:id", menuController.Show)
 				menu.PUT("/:id", menuController.Update)
 				menu.DELETE("/:id", menuController.Delete)
+			}
+
+			userMenu := routes.Group("/user-menus")
+			{
+				userMenu.GET("", userMenuController.Index)
+				userMenu.POST("", userMenuController.Create)
+				userMenu.GET("/:id", userMenuController.Show)
+				userMenu.PUT("/:id", userMenuController.Update)
+				userMenu.DELETE("/:id", userMenuController.Delete)
 			}
 		}
 	}

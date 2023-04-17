@@ -340,6 +340,171 @@ const docTemplate = `{
                 "responses": {}
             }
         },
+        "/api/v1/user-menus": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserMenu"
+                ],
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Limit Per Page",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Page Number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Sort By {ex: created_at asc | desc}",
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Seraching by column {ex: id} action {ex: equals | contains | in}",
+                        "name": "id.equals",
+                        "in": "query"
+                    }
+                ],
+                "responses": {}
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserMenu"
+                ],
+                "parameters": [
+                    {
+                        "description": "Pass session information to DBaaS Parameter",
+                        "name": "filter",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/engine.UserMenu"
+                            }
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/api/v1/user-menus/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserMenu"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pass session information to DBaaS Parameter",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserMenu"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pass session information to DBaaS Parameter",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Pass session information to DBaaS Parameter",
+                        "name": "filter",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/engine.UserMenu"
+                        }
+                    }
+                ],
+                "responses": {}
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "UserMenu"
+                ],
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Pass session information to DBaaS Parameter",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/api/v1/users": {
             "get": {
                 "security": [
@@ -629,6 +794,41 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "engine.UserMenu": {
+            "type": "object",
+            "required": [
+                "is_create",
+                "is_delete",
+                "is_read",
+                "is_report",
+                "is_update",
+                "menu_id",
+                "role_id"
+            ],
+            "properties": {
+                "is_create": {
+                    "type": "boolean"
+                },
+                "is_delete": {
+                    "type": "boolean"
+                },
+                "is_read": {
+                    "type": "boolean"
+                },
+                "is_report": {
+                    "type": "boolean"
+                },
+                "is_update": {
+                    "type": "boolean"
+                },
+                "menu_id": {
+                    "type": "string"
+                },
+                "role_id": {
                     "type": "string"
                 }
             }

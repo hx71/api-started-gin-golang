@@ -70,6 +70,31 @@ definitions:
     - password
     - username
     type: object
+  engine.UserMenu:
+    properties:
+      is_create:
+        type: boolean
+      is_delete:
+        type: boolean
+      is_read:
+        type: boolean
+      is_report:
+        type: boolean
+      is_update:
+        type: boolean
+      menu_id:
+        type: string
+      role_id:
+        type: string
+    required:
+    - is_create
+    - is_delete
+    - is_read
+    - is_report
+    - is_update
+    - menu_id
+    - role_id
+    type: object
 host: localhost:1234
 info:
   contact: {}
@@ -279,6 +304,109 @@ paths:
       - BearerAuth: []
       tags:
       - Roles
+  /api/v1/user-menus:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Limit Per Page
+        in: query
+        name: limit
+        type: integer
+      - description: Page Number
+        in: query
+        name: page
+        type: integer
+      - description: 'Sort By {ex: created_at asc | desc}'
+        in: query
+        name: sort
+        type: string
+      - description: 'Seraching by column {ex: id} action {ex: equals | contains |
+          in}'
+        in: query
+        name: id.equals
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      tags:
+      - UserMenu
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Pass session information to DBaaS Parameter
+        in: body
+        name: filter
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/engine.UserMenu'
+          type: array
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      tags:
+      - UserMenu
+  /api/v1/user-menus/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Pass session information to DBaaS Parameter
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      tags:
+      - UserMenu
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Pass session information to DBaaS Parameter
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      tags:
+      - UserMenu
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Pass session information to DBaaS Parameter
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Pass session information to DBaaS Parameter
+        in: body
+        name: filter
+        required: true
+        schema:
+          $ref: '#/definitions/engine.UserMenu'
+      produces:
+      - application/json
+      responses: {}
+      security:
+      - BearerAuth: []
+      tags:
+      - UserMenu
   /api/v1/users:
     get:
       consumes:
