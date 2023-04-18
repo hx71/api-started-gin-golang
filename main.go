@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/database/migration"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/engine"
 )
 
@@ -16,6 +17,16 @@ import (
 // @BasePath /
 // @schemes http
 func main() {
+
+	dbEvent := os.Getenv("DBEVENT")
+	if dbEvent == "rollback" {
+		migration.RunRollback()
+	} else if dbEvent == "migration" {
+		// migration.RunMigrations()
+	} else if dbEvent == "seeder" {
+		// migration.RunMigrations()
+		// seeder.RunSeeder()
+	}
 
 	r := engine.SetupRouter()
 

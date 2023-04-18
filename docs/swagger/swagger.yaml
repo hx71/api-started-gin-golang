@@ -103,34 +103,6 @@ info:
   version: "1.0"
 paths:
   /api/v1/menus:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: Limit Per Page
-        in: query
-        name: limit
-        type: integer
-      - description: Page Number
-        in: query
-        name: page
-        type: integer
-      - description: 'Sort By {ex: created_at asc | desc}'
-        in: query
-        name: sort
-        type: string
-      - description: 'Seraching by column {ex: id} action {ex: equals | contains |
-          in}'
-        in: query
-        name: id.equals
-        type: string
-      produces:
-      - application/json
-      responses: {}
-      security:
-      - BearerAuth: []
-      tags:
-      - Menus
     post:
       consumes:
       - application/json

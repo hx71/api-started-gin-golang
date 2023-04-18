@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/database/migration"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
 )
@@ -46,6 +47,7 @@ func NewAuthController(authServ service.AuthService, jwtServ service.JWTService)
 }
 
 func (c *authController) Version(ctx *gin.Context) {
+	migration.RunMigrations()
 	ctx.JSON(http.StatusOK, "version 1.0.0")
 }
 
