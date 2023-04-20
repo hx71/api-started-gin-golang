@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/database/migration"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/database/seeder"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/engine"
 )
 
@@ -22,13 +23,12 @@ func main() {
 	if dbEvent == "rollback" {
 		migration.RunRollback()
 	} else if dbEvent == "migration" {
-		// migration.RunMigrations()
+		migration.RunMigrations()
 	} else if dbEvent == "seeder" {
-		// migration.RunMigrations()
-		// seeder.RunSeeder()
+		migration.RunMigrations()
+		seeder.RunSeeder()
 	}
 
 	r := engine.SetupRouter()
-
 	r.Run(":" + os.Getenv("APP_PORT"))
 }
