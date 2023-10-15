@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/config"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/database/migration"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
@@ -55,7 +56,7 @@ func (s *authController) Login(ctx *gin.Context) {
 	var credentials dto.LoginValidation
 	errCredentials := ctx.ShouldBind(&credentials)
 	if errCredentials != nil {
-		response := response.ResponseError("Failed to process request", errCredentials.Error())
+		response := response.ResponseError(config.MessageErr.FailedProcess, errCredentials.Error())
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
@@ -82,13 +83,13 @@ func (s *authController) Register(ctx *gin.Context) {
 	req.ID = uuid.NewString()
 	errRequest := ctx.ShouldBind(&req)
 	if errRequest != nil {
-		response := response.ResponseError("Failed to process request", errRequest.Error())
+		response := response.ResponseError(config.MessageErr.FailedProcess, errRequest.Error())
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, response)
 		return
 	}
 
 	if !s.authService.FindByEmail(req.Email) {
-		response := response.ResponseError("Failed to process request", "Duplicate email")
+		response := response.ResponseError(config.MessageErr.FailedProcess, "Duplicate email")
 		ctx.JSON(http.StatusConflict, response)
 	} else {
 		createdUser := s.authService.CreateUser(req)
@@ -105,8 +106,8 @@ func (s *authController) RefreshToken(ctx *gin.Context) {
 	if token.Valid {
 		claims := token.Claims.(jwt.MapClaims)
 		email := fmt.Sprintf("%s", claims["email"])
-		refresh_token := s.jwtService.GenerateToken(email)
-		ctx.JSON(http.StatusOK, gin.H{"refresh_token": refresh_token})
+		refreshToken := s.jwtService.GenerateToken(email)
+		ctx.JSON(http.StatusOK, gin.H{"refresh_token": refreshToken})
 	} else {
 		log.Println(err)
 		response := response.ResponseError("Token is not valid", err.Error())

@@ -2,9 +2,9 @@
 
 ## clone project
 
-```
+**```**
 git@github.com:hasrulrhul/service-repository-pattern-gin-golang.git
-```
+**```**
 
 ## setup database
 
@@ -12,12 +12,12 @@ git@github.com:hasrulrhul/service-repository-pattern-gin-golang.git
 
 ## rub project
 
-```
+**```**
 make run
-```
+**```**
 
 ## endpoint api
 
-```
+**```**
 http://localhost:1234/api/v1
-```
+**```**

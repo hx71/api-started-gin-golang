@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/config"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helpers"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
@@ -50,7 +51,7 @@ func (s *userMenuController) Create(ctx *gin.Context) {
 	// req.ID = uuid.NewString()
 	err := ctx.ShouldBind(&req)
 	if err != nil {
-		response := response.ResponseError("failed to process request", err.Error())
+		response := response.ResponseError(config.MessageErr.FailedProcess, err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
@@ -87,7 +88,7 @@ func (s *userMenuController) Update(ctx *gin.Context) {
 		var req dto.UserMenuCreateValidation
 		err := ctx.ShouldBind(&req)
 		if err != nil {
-			response := response.ResponseError("failed to process request", err.Error())
+			response := response.ResponseError(config.MessageErr.FailedProcess, err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}

@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/config"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helpers"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
@@ -49,13 +50,13 @@ func (s *userController) Create(ctx *gin.Context) {
 	var req dto.UserCreateValidation
 	err := ctx.ShouldBind(&req)
 	if err != nil {
-		response := response.ResponseError("failed to process request", err.Error())
+		response := response.ResponseError(config.MessageErr.FailedProcess, err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	// if !s.userService.FindByEmail(req.Email) {
-	// 	response := response.ResponseError("Failed to process request", "duplicate email")
+	// 	response := response.ResponseError(config.MessageErr.FailedProcess, "duplicate email")
 	// 	ctx.JSON(http.StatusConflict, response)
 	// } else {
 	err = s.userService.Create(req)
@@ -92,7 +93,7 @@ func (c *userController) Update(ctx *gin.Context) {
 		userValidation.ID = id
 		err := ctx.ShouldBind(&userValidation)
 		if err != nil {
-			response := response.ResponseError("failed to process request", err.Error())
+			response := response.ResponseError(config.MessageErr.FailedProcess, err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}

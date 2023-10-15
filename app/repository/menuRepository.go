@@ -51,7 +51,7 @@ func (db *menuConnection) Pagination(pagination *helpers.Pagination) (Repository
 
 	var records []models.Menu
 	var totalRows int64
-	totalPages, fromRow, toRow := 0, 0, 0
+	totalPages := 0
 
 	offset := (pagination.Page - 1) * pagination.Limit
 
@@ -94,11 +94,13 @@ func (db *menuConnection) Pagination(pagination *helpers.Pagination) (Repository
 				break
 			}
 		}
+
 		if whereEquals != "" && whereLike != "" {
 			where = whereEquals + " AND " + whereLike
 		} else {
 			where = whereEquals + whereLike
 		}
+
 		find = find.Where(where)
 		errCount := db.connection.Model(&models.Menu{}).Where(where).Count(&totalRows).Error
 		if errCount != nil {
@@ -127,23 +129,20 @@ func (db *menuConnection) Pagination(pagination *helpers.Pagination) (Repository
 
 	if pagination.Page == 0 {
 		// set from & to row on first page
-		fromRow = 1
-		toRow = pagination.Limit
+		pagination.FromRow = 1
+		pagination.ToRow = pagination.Limit
 	} else {
 		if pagination.Page <= totalPages {
 			// calculate from & to row
-			fromRow = ((pagination.Page - 1) * pagination.Limit) + 1
-			toRow = pagination.Page * pagination.Limit
+			pagination.FromRow = ((pagination.Page - 1) * pagination.Limit) + 1
+			pagination.ToRow = pagination.Page * pagination.Limit
 		}
 	}
 
-	if int64(toRow) > totalRows {
+	if int64(pagination.ToRow) > totalRows {
 		// set to row with total rows
-		toRow = int(totalRows)
+		pagination.ToRow = int(totalRows)
 	}
-
-	pagination.FromRow = fromRow
-	pagination.ToRow = toRow
 
 	return RepositoryResult{Result: pagination}, totalPages
 }
