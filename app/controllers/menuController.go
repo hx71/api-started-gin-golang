@@ -59,10 +59,12 @@ func (s *menuController) Create(ctx *gin.Context) {
 
 	err = s.menuService.Create(req)
 	if err != nil {
+		go helpers.CreateLogError(uuid.NewString(), helpers.GetIP(ctx), "menus", "created menus", err.Error())
 		response := response.ResponseError("failed to process created", err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
+	go helpers.CreateLogInfo(uuid.NewString(), helpers.GetIP(ctx), "menus", "created menus", "created success")
 	response := response.ResultSuccess("created success")
 	ctx.JSON(http.StatusCreated, response)
 }
@@ -96,10 +98,12 @@ func (c *menuController) Update(ctx *gin.Context) {
 		}
 		err = c.menuService.Update(req)
 		if err != nil {
+			go helpers.CreateLogError(uuid.NewString(), helpers.GetIP(ctx), "menus", "updated menus", err.Error())
 			response := response.ResponseError("failed to process deleted", err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
+		go helpers.CreateLogInfo(uuid.NewString(), helpers.GetIP(ctx), "menus", "updated menus", "created success")
 		response := response.ResultSuccess("updated success")
 		ctx.JSON(http.StatusCreated, response)
 	}
@@ -113,10 +117,12 @@ func (c *menuController) Delete(ctx *gin.Context) {
 	} else {
 		err := c.menuService.Delete(id)
 		if err != nil {
+			go helpers.CreateLogError(uuid.NewString(), helpers.GetIP(ctx), "roles", "deleted roles", err.Error())
 			response := response.ResponseError("failed to process deleted", err.Error())
 			ctx.JSON(http.StatusNotFound, response)
 			return
 		}
+		go helpers.CreateLogInfo(uuid.NewString(), helpers.GetIP(ctx), "menus", "deleted menus", "created success")
 		response := response.ResultSuccess("deleted success")
 		ctx.JSON(http.StatusOK, response)
 	}

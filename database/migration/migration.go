@@ -21,4 +21,5 @@ func RunMigrations() {
 	db_conn.AutoMigrate(&models.Role{})
 	db_conn.AutoMigrate(&models.Menu{})
 	db_conn.AutoMigrate(&models.UserMenu{})
+	db_conn.AutoMigrate(&models.AuditLog{})
 }

@@ -13,7 +13,6 @@ import (
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/config"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/database/migration"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
 )
@@ -48,7 +47,29 @@ func NewAuthController(authServ service.AuthService, jwtServ service.JWTService)
 }
 
 func (c *authController) Version(ctx *gin.Context) {
-	migration.RunMigrations()
+	// var wg sync.WaitGroup
+	// var logs models.AuditLog
+	// // var mtx sync.Mutex
+
+	// logs.ID = uuid.NewString()
+	// logs.UserID = uuid.NewString()
+	// logs.IPAddress = helpers.GetIP(ctx)
+	// logs.ServiceName = "version"
+	// logs.MethodName = "get version"
+	// logs.Level = "Info"
+	// logs.Metadata = "{'status':'false', 'message':'version 1.0.0'}"
+
+	// wg.Add(1)
+	// go helpers.CreateLog(logs, &wg)
+
+	// logs.ID = uuid.NewString()
+	// logs.Level = "Error"
+	// logs.Metadata = "{'status':'true', 'message':'data not found'}"
+	// wg.Add(1)
+	// go helpers.CreateLog(logs, &wg)
+	// wg.Wait()
+
+	// migration.RunMigrations()
 	ctx.JSON(http.StatusOK, "version 1.0.0")
 }
 

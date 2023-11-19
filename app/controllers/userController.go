@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/config"
@@ -61,10 +62,12 @@ func (s *userController) Create(ctx *gin.Context) {
 	// } else {
 	err = s.userService.Create(req)
 	if err != nil {
+		go helpers.CreateLogError(uuid.NewString(), helpers.GetIP(ctx), "users", "created users", err.Error())
 		response := response.ResponseError("failed to process created", err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
+	go helpers.CreateLogInfo(uuid.NewString(), helpers.GetIP(ctx), "users", "created users", "created success")
 	response := response.ResultSuccess("created success")
 	ctx.JSON(http.StatusCreated, response)
 	// }
@@ -99,10 +102,12 @@ func (c *userController) Update(ctx *gin.Context) {
 		}
 		err = c.userService.Update(userValidation)
 		if err != nil {
+			go helpers.CreateLogError(uuid.NewString(), helpers.GetIP(ctx), "users", "updated users", err.Error())
 			response := response.ResponseError("update failed", err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
+		go helpers.CreateLogInfo(uuid.NewString(), helpers.GetIP(ctx), "users", "updated users", "updated success")
 		response := response.ResponseSuccess("update success", nil)
 		ctx.JSON(http.StatusCreated, response)
 	}
@@ -117,10 +122,12 @@ func (c *userController) Delete(ctx *gin.Context) {
 	} else {
 		err := c.userService.Delete(user)
 		if err != nil {
+			go helpers.CreateLogError(uuid.NewString(), helpers.GetIP(ctx), "users", "deleted users", err.Error())
 			response := response.ResponseError("failed to process deleted", err.Error())
 			ctx.JSON(http.StatusNotFound, response)
 			return
 		}
+		go helpers.CreateLogInfo(uuid.NewString(), helpers.GetIP(ctx), "users", "deleted users", "deleted success")
 		response := response.ResultSuccess("deleted success")
 		ctx.JSON(http.StatusOK, response)
 	}

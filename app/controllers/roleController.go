@@ -59,10 +59,13 @@ func (s *roleController) Create(ctx *gin.Context) {
 
 	err = s.roleService.Create(req)
 	if err != nil {
+		go helpers.CreateLogError(uuid.NewString(), helpers.GetIP(ctx), "roles", "created roles", err.Error())
 		response := response.ResponseError("failed to process created", err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
+
+	go helpers.CreateLogInfo(uuid.NewString(), helpers.GetIP(ctx), "roles", "created roles", "created success")
 	response := response.ResultSuccess("created success")
 	ctx.JSON(http.StatusCreated, response)
 }
@@ -97,10 +100,13 @@ func (s *roleController) Update(ctx *gin.Context) {
 
 		err = s.roleService.Update(req)
 		if err != nil {
+			go helpers.CreateLogError(uuid.NewString(), helpers.GetIP(ctx), "roles", "updated roles", err.Error())
 			response := response.ResponseError("failed to process updated", err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
+
+		go helpers.CreateLogInfo(uuid.NewString(), helpers.GetIP(ctx), "roles", "updated roles", "created success")
 		response := response.ResultSuccess("updated success")
 		ctx.JSON(http.StatusCreated, response)
 	}
@@ -115,10 +121,12 @@ func (s *roleController) Delete(ctx *gin.Context) {
 	} else {
 		err := s.roleService.Delete(role)
 		if err != nil {
+			go helpers.CreateLogError(uuid.NewString(), helpers.GetIP(ctx), "roles", "deleted roles", err.Error())
 			response := response.ResponseError("failed to process deleted", err.Error())
 			ctx.JSON(http.StatusNotFound, response)
 			return
 		}
+		go helpers.CreateLogInfo(uuid.NewString(), helpers.GetIP(ctx), "roles", "deleted roles", "deleted success")
 		response := response.ResultSuccess("deleted success")
 		ctx.JSON(http.StatusOK, response)
 	}
