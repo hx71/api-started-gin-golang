@@ -17,49 +17,6 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/api/v1/menus": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Menus"
-                ],
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Limit Per Page",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "Page Number",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Sort By {ex: created_at asc | desc}",
-                        "name": "sort",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "Seraching by column {ex: id} action {ex: equals | contains | in}",
-                        "name": "id.equals",
-                        "in": "query"
-                    }
-                ],
-                "responses": {}
-            },
             "post": {
                 "security": [
                     {

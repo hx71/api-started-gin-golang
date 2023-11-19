@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/config"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helpers"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
@@ -51,17 +52,20 @@ func (s *roleController) Create(ctx *gin.Context) {
 	req.ID = uuid.NewString()
 	err := ctx.ShouldBind(&req)
 	if err != nil {
-		response := response.ResponseError("failed to process request", err.Error())
+		response := response.ResponseError(config.MessageErr.FailedProcess, err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
 	err = s.roleService.Create(req)
 	if err != nil {
+		go helpers.CreateLogError(uuid.NewString(), helpers.GetIP(ctx), "roles", "created roles", err.Error())
 		response := response.ResponseError("failed to process created", err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
+
+	go helpers.CreateLogInfo(uuid.NewString(), helpers.GetIP(ctx), "roles", "created roles", "created success")
 	response := response.ResultSuccess("created success")
 	ctx.JSON(http.StatusCreated, response)
 }
@@ -89,17 +93,20 @@ func (s *roleController) Update(ctx *gin.Context) {
 		req.ID = id
 		err := ctx.ShouldBind(&req)
 		if err != nil {
-			response := response.ResponseError("failed to process request", err.Error())
+			response := response.ResponseError(config.MessageErr.FailedProcess, err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
 
 		err = s.roleService.Update(req)
 		if err != nil {
+			go helpers.CreateLogError(uuid.NewString(), helpers.GetIP(ctx), "roles", "updated roles", err.Error())
 			response := response.ResponseError("failed to process updated", err.Error())
 			ctx.JSON(http.StatusBadRequest, response)
 			return
 		}
+
+		go helpers.CreateLogInfo(uuid.NewString(), helpers.GetIP(ctx), "roles", "updated roles", "created success")
 		response := response.ResultSuccess("updated success")
 		ctx.JSON(http.StatusCreated, response)
 	}
@@ -114,10 +121,12 @@ func (s *roleController) Delete(ctx *gin.Context) {
 	} else {
 		err := s.roleService.Delete(role)
 		if err != nil {
+			go helpers.CreateLogError(uuid.NewString(), helpers.GetIP(ctx), "roles", "deleted roles", err.Error())
 			response := response.ResponseError("failed to process deleted", err.Error())
 			ctx.JSON(http.StatusNotFound, response)
 			return
 		}
+		go helpers.CreateLogInfo(uuid.NewString(), helpers.GetIP(ctx), "roles", "deleted roles", "deleted success")
 		response := response.ResultSuccess("deleted success")
 		ctx.JSON(http.StatusOK, response)
 	}

@@ -13,11 +13,18 @@ import (
 var usersRepository = &repository.UsersRepositoryMock{Mock: mock.Mock{}}
 var usersService = UsersService{Repository: usersRepository}
 
-func TestUsersService_Index(t *testing.T) {
+var (
+	name     = "Admin"
+	username = "admin"
+	email    = "admin@mail.com"
+	password = "password@123"
+)
+
+func TestUsersServiceIndex(t *testing.T) {
 	var listUsers []models.User
 	var users = models.User{
 		ID:   "1",
-		Name: "hasrul",
+		Name: name,
 	}
 	listUsers = append(listUsers, users)
 
@@ -27,13 +34,13 @@ func TestUsersService_Index(t *testing.T) {
 	assert.NotNil(t, user)
 
 }
-func TestUsersService_Create(t *testing.T) {
+func TestUsersServiceCreate(t *testing.T) {
 	users := models.User{
 		ID:       "1",
-		Name:     "hasrul",
-		Username: "hasrul",
-		Password: "hasrul@123",
-		Email:    "hasrul@mail.com",
+		Name:     name,
+		Username: username,
+		Password: password,
+		Email:    email,
 	}
 
 	usersRepository.Mock.On("Create", users).Return(users, nil)
@@ -42,10 +49,10 @@ func TestUsersService_Create(t *testing.T) {
 	assert.Equal(t, result.ID, "1")
 }
 
-func TestUsersService_GetFound(t *testing.T) {
+func TestUsersServiceGetFound(t *testing.T) {
 	users := models.User{
 		ID:   "1",
-		Name: "hasrul",
+		Name: name,
 	}
 	usersRepository.Mock.On("Show", "1").Return(users)
 
@@ -56,7 +63,7 @@ func TestUsersService_GetFound(t *testing.T) {
 	assert.Equal(t, result.Name, "hasrul")
 }
 
-func TestUsersService_GetNotFound(t *testing.T) {
+func TestUsersServiceGetNotFound(t *testing.T) {
 	usersRepository.Mock.On("Show", "2").Return(nil)
 
 	users, err := usersService.Show("2")
@@ -64,13 +71,13 @@ func TestUsersService_GetNotFound(t *testing.T) {
 	assert.NotNil(t, err)
 }
 
-func TestUsersService_Update(t *testing.T) {
+func TestUsersServiceUpdate(t *testing.T) {
 	users := models.User{
 		ID:       "1",
-		Name:     "rhul",
-		Username: "hasrul",
-		Password: "hasrul@123",
-		Email:    "hasrul@mail.com",
+		Name:     "user",
+		Username: username,
+		Password: password,
+		Email:    email,
 	}
 
 	usersRepository.Mock.On("Create", users).Return(users, nil)
@@ -79,15 +86,15 @@ func TestUsersService_Update(t *testing.T) {
 	assert.Equal(t, result.Name, "rhul")
 }
 
-func TestUsersService_Delete(t *testing.T) {
+func TestUsersServiceDelete(t *testing.T) {
 	// var tgl = time.Now().Local()
 	// fmt.Println("tanggal", tgl)
 	users := models.User{
 		ID:       "1",
-		Name:     "hasrul",
-		Username: "hasrul",
-		Password: "hasrul@123",
-		Email:    "hasrul@mail.com",
+		Name:     name,
+		Username: username,
+		Password: password,
+		Email:    email,
 		// DeletedAt: time.Now(),
 	}
 

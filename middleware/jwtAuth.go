@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
+	"github.com/hasrulrhul/service-repository-pattern-gin-golang/config"
 	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
 )
 
@@ -14,7 +15,7 @@ func AuthorizeJWT(jwtService service.JWTService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
-			response := response.ResponseError("failed to process request", "token not found")
+			response := response.ResponseError(config.MessageErr.FailedProcess, "token not found")
 			c.AbortWithStatusJSON(http.StatusBadRequest, response)
 			return
 		}

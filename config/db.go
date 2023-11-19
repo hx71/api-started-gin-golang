@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -37,10 +37,6 @@ func SetupConnection() *gorm.DB {
 	// delete tables
 
 	// migrate tables
-	db.AutoMigrate(&models.User{})
-	db.AutoMigrate(&models.Role{})
-	db.AutoMigrate(&models.Menu{})
-	db.AutoMigrate(&models.UserMenu{})
 	return db
 }
 
