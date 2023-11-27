@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/config"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
+	"github.com/hx71/api-started-gin-golang/config"
+	"github.com/hx71/api-started-gin-golang/models"
 	"gorm.io/gorm"
 )
 

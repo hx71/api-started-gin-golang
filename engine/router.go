@@ -6,16 +6,20 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/controllers"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/repository"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/config"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helpers"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/middleware"
+	"github.com/hx71/api-started-gin-golang/app/auditlog"
+	auditlogRepo "github.com/hx71/api-started-gin-golang/app/auditlog/repository"
+	rAuditlog "github.com/hx71/api-started-gin-golang/app/auditlog/routes"
+	"github.com/hx71/api-started-gin-golang/app/auditlog/usecase"
+	"github.com/hx71/api-started-gin-golang/app/controllers"
+	"github.com/hx71/api-started-gin-golang/app/repository"
+	"github.com/hx71/api-started-gin-golang/app/service"
+	"github.com/hx71/api-started-gin-golang/config"
+	"github.com/hx71/api-started-gin-golang/helpers"
+	"github.com/hx71/api-started-gin-golang/middleware"
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 
-	_ "github.com/hasrulrhul/service-repository-pattern-gin-golang/docs/swagger"
+	_ "github.com/hx71/api-started-gin-golang/docs/swagger"
 	swaggerFiles "github.com/swaggo/files"
 	swagger "github.com/swaggo/gin-swagger"
 )
@@ -32,22 +36,25 @@ var (
 
 	jwtService service.JWTService = service.NewJWTService()
 
-	userRepository     repository.UserRepository     = repository.NewUserRepository(db)
-	roleRepository     repository.RoleRepository     = repository.NewRoleRepository(db)
-	menuRepository     repository.MenuRepository     = repository.NewMenuRepository(db)
-	userMenuRepository repository.UserMenuRepository = repository.NewUserMenuRepository(db)
+	users     repository.UserRepository     = repository.NewUserRepository(db)
+	roles     repository.RoleRepository     = repository.NewRoleRepository(db)
+	menus     repository.MenuRepository     = repository.NewMenuRepository(db)
+	userMenus repository.UserMenuRepository = repository.NewUserMenuRepository(db)
 
-	authService     service.AuthService     = service.NewAuthService(userRepository)
-	userService     service.UserService     = service.NewUserService(userRepository)
-	roleService     service.RoleService     = service.NewRoleService(roleRepository)
-	menuService     service.MenuService     = service.NewMenuService(menuRepository)
-	userMenuService service.UserMenuService = service.NewUserMenuService(userMenuRepository)
+	authService     service.AuthService     = service.NewAuthService(users)
+	userService     service.UserService     = service.NewUserService(users)
+	roleService     service.RoleService     = service.NewRoleService(roles)
+	menuService     service.MenuService     = service.NewMenuService(menus)
+	userMenuService service.UserMenuService = service.NewUserMenuService(userMenus)
 
 	authController     controllers.AuthController     = controllers.NewAuthController(authService, jwtService)
 	userController     controllers.UserController     = controllers.NewUserController(userService, jwtService)
 	roleController     controllers.RoleController     = controllers.NewRoleController(roleService, jwtService)
 	menuController     controllers.MenuController     = controllers.NewMenuController(menuService, jwtService)
 	userMenuController controllers.UserMenuController = controllers.NewUserMenuController(userMenuService, jwtService)
+
+	auditlogs       auditlog.Repository = auditlogRepo.NewAuditLogRepository(db)
+	auditlogUsecase auditlog.Usecase    = usecase.NewAuditLogUsecase(auditlogs)
 )
 
 func SetupRouter() *gin.Engine {
@@ -69,6 +76,7 @@ func SetupRouter() *gin.Engine {
 	// Routes
 	v1 := r.Group("api/v1")
 	{
+
 		currentTime := time.Now()
 		crnTime := currentTime.Format("01-02-2006")
 		// log file
@@ -91,6 +99,10 @@ func SetupRouter() *gin.Engine {
 		routes := v1.Group("/")
 		// routes := v1.Group("/", middleware.AuthorizeJWT(jwtService))
 		{
+
+			// audit logs
+			rAuditlog.AuditLogHTTPHandler(routes, auditlogUsecase)
+
 			users := routes.Group("/users")
 			{
 				users.GET("", userController.Index)

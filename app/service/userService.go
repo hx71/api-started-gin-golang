@@ -6,11 +6,11 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/repository"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helpers"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
+	"github.com/hx71/api-started-gin-golang/app/dto"
+	"github.com/hx71/api-started-gin-golang/app/repository"
+	"github.com/hx71/api-started-gin-golang/helpers"
+	"github.com/hx71/api-started-gin-golang/models"
+	"github.com/hx71/api-started-gin-golang/response"
 	"github.com/mashingan/smapping"
 )
 

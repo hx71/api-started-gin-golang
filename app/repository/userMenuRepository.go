@@ -5,8 +5,9 @@ import (
 	"math"
 	"strings"
 
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helpers"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
+	"github.com/hx71/api-started-gin-golang/helpers"
+	"github.com/hx71/api-started-gin-golang/models"
+	"github.com/hx71/api-started-gin-golang/response"
 	"gorm.io/gorm"
 )
 
@@ -15,7 +16,7 @@ type UserMenuRepository interface {
 	Show(id string) models.UserMenus
 	Update(model models.UserMenu) error
 	Delete(model models.UserMenus) error
-	Pagination(*helpers.Pagination) (RepositoryResult, int)
+	Pagination(*helpers.Pagination) (response.RepositoryResult, int)
 }
 
 type userMenuConnection struct {
@@ -46,7 +47,7 @@ func (db *userMenuConnection) Delete(model models.UserMenus) error {
 	return db.connection.Delete(&model).Error
 }
 
-func (db *userMenuConnection) Pagination(pagination *helpers.Pagination) (RepositoryResult, int) {
+func (db *userMenuConnection) Pagination(pagination *helpers.Pagination) (response.RepositoryResult, int) {
 
 	var records []models.UserMenu
 	var totalRows int64
@@ -101,12 +102,12 @@ func (db *userMenuConnection) Pagination(pagination *helpers.Pagination) (Reposi
 		find = find.Where(where)
 		errCount := db.connection.Model(&models.UserMenu{}).Where(where).Count(&totalRows).Error
 		if errCount != nil {
-			return RepositoryResult{Error: errCount}, totalPages
+			return response.RepositoryResult{Error: errCount}, totalPages
 		}
 	} else {
 		errCount := db.connection.Model(&models.UserMenu{}).Count(&totalRows).Error
 		if errCount != nil {
-			return RepositoryResult{Error: errCount}, totalPages
+			return response.RepositoryResult{Error: errCount}, totalPages
 		}
 	}
 
@@ -115,7 +116,7 @@ func (db *userMenuConnection) Pagination(pagination *helpers.Pagination) (Reposi
 	// has error find data
 	errFind := find.Error
 	if errFind != nil {
-		return RepositoryResult{Error: errFind}, totalPages
+		return response.RepositoryResult{Error: errFind}, totalPages
 	}
 
 	pagination.Rows = records
@@ -144,5 +145,5 @@ func (db *userMenuConnection) Pagination(pagination *helpers.Pagination) (Reposi
 	pagination.FromRow = fromRow
 	pagination.ToRow = toRow
 
-	return RepositoryResult{Result: pagination}, totalPages
+	return response.RepositoryResult{Result: pagination}, totalPages
 }

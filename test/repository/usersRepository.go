@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
+	"github.com/hx71/api-started-gin-golang/models"
 )
 
 type UsersRepository interface {
