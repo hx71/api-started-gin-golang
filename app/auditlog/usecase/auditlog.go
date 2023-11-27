@@ -1,4 +1,4 @@
-package service
+package usecase
 
 import (
 	"fmt"
@@ -6,70 +6,50 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/hx71/api-started-gin-golang/app/auditlog"
 	"github.com/hx71/api-started-gin-golang/app/dto"
-	"github.com/hx71/api-started-gin-golang/app/repository"
-	"github.com/hx71/api-started-gin-golang/helpers"
 	"github.com/hx71/api-started-gin-golang/models"
 	"github.com/hx71/api-started-gin-golang/response"
 	"github.com/mashingan/smapping"
 )
 
-//RoleService is a ....
-type RoleService interface {
-	Create(req dto.RoleCreateValidation) error
-	Show(id string) models.Roles
-	Update(req dto.RoleCreateValidation) error
-	Delete(model models.Roles) error
-	Pagination(ctx *gin.Context, pagination *helpers.Pagination) response.Response
+type auditLogUsecase struct {
+	repo auditlog.Repository
 }
 
-type roleService struct {
-	roleRepository repository.RoleRepository
-}
-
-//NewRoleService .....
-func NewRoleService(roleRepo repository.RoleRepository) RoleService {
-	return &roleService{
-		roleRepository: roleRepo,
+func NewAuditLogUsecase(repo auditlog.Repository) auditlog.Usecase {
+	return &auditLogUsecase{
+		repo: repo,
 	}
 }
 
-func (service *roleService) Create(req dto.RoleCreateValidation) error {
-	role := models.Role{}
+func (r *auditLogUsecase) Create(req dto.AuditLogCreateValidation) error {
+	role := models.AuditLog{}
 	role.ID = uuid.NewString()
 	err := smapping.FillStruct(&role, smapping.MapFields(&req))
 	if err != nil {
 		log.Fatalf("Failed map %v: ", err)
 	}
-	return service.roleRepository.Create(role)
+	return r.repo.Create(role)
 }
 
-func (service *roleService) Show(id string) models.Roles {
-	return service.roleRepository.Show(id)
+func (r *auditLogUsecase) Show(id string) models.AuditLog {
+	return r.repo.Show(id)
 }
 
-func (service *roleService) Update(req dto.RoleCreateValidation) error {
-	role := models.Role{}
-	err := smapping.FillStruct(&role, smapping.MapFields(&req))
-	if err != nil {
-		log.Fatalf("Failed map %v: ", err)
-	}
-	return service.roleRepository.Update(role)
+func (r *auditLogUsecase) Delete(model models.AuditLog) error {
+	return r.repo.Delete(model)
 }
 
-func (service *roleService) Delete(model models.Roles) error {
-	return service.roleRepository.Delete(model)
-}
+func (r *auditLogUsecase) Pagination(context *gin.Context, pagination *response.Pagination) response.Response {
 
-func (r *roleService) Pagination(context *gin.Context, pagination *helpers.Pagination) response.Response {
-
-	operationResult, totalPages := r.roleRepository.Pagination(pagination)
+	operationResult, totalPages := r.repo.Pagination(pagination)
 
 	if operationResult.Error != nil {
 		return response.Response{Status: false, Message: operationResult.Error.Error()}
 	}
 
-	var data = operationResult.Result.(*helpers.Pagination)
+	var data = operationResult.Result.(*response.Pagination)
 
 	// get current url path
 	urlPath := context.Request.URL.Path

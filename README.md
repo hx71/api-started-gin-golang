@@ -3,10 +3,14 @@
 ## clone project
 
 **```**
-git@github.com:hasrulrhul/service-repository-pattern-gin-golang.git
+git@github.com:hx71/api-started-gin-golang.git
 **```**
 
-## setup database
+## create database
+
+``` create database on mysql or postgresql ```
+
+## setup config database
 
 ```rename .env.example to .env```
 

@@ -10,11 +10,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/dto"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/app/service"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/config"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/response"
+	"github.com/hx71/api-started-gin-golang/app/dto"
+	"github.com/hx71/api-started-gin-golang/app/service"
+	"github.com/hx71/api-started-gin-golang/config"
+	"github.com/hx71/api-started-gin-golang/models"
+	"github.com/hx71/api-started-gin-golang/response"
 )
 
 // AuthController interface is a contract what this controller can do

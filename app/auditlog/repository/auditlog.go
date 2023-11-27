@@ -2,88 +2,43 @@ package repository
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"strings"
 
-	"github.com/hx71/api-started-gin-golang/helpers"
+	"github.com/hx71/api-started-gin-golang/app/auditlog"
 	"github.com/hx71/api-started-gin-golang/models"
 	"github.com/hx71/api-started-gin-golang/response"
-	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 )
 
-type UserRepository interface {
-	Create(model models.User) error
-	Show(id string) models.User
-	Update(model models.User) error
-	Delete(model models.User) error
-	Pagination(*helpers.Pagination) (response.RepositoryResult, int)
-
-	VerifyCredential(email string, password string) interface{}
-	FindByEmail(email string) bool
-}
-
-type userConnection struct {
+type auditLogConn struct {
 	connection *gorm.DB
 }
 
-//NewUserRepository is creates a new instance of UserRepository
-func NewUserRepository(db *gorm.DB) UserRepository {
-	return &userConnection{
-		connection: db,
-	}
+func NewAuditLogRepository(connection *gorm.DB) auditlog.Repository {
+	return &auditLogConn{connection}
 }
 
-func (db *userConnection) Create(model models.User) error {
-	model.Password = hashAndSalt([]byte(model.Password))
+func (db *auditLogConn) Create(model models.AuditLog) error {
 	return db.connection.Save(&model).Error
 }
 
-func (db *userConnection) Show(id string) (user models.User) {
-	db.connection.Where("id = ?", id).First(&user)
-	return user
+func (db *auditLogConn) Show(id string) (role models.AuditLog) {
+	db.connection.Where("id = ?", id).First(&role)
+	return role
 }
 
-func (db *userConnection) Update(model models.User) error {
+func (db *auditLogConn) Update(model models.AuditLog) error {
 	return db.connection.Updates(&model).Error
 }
 
-func (db *userConnection) Delete(model models.User) error {
+func (db *auditLogConn) Delete(model models.AuditLog) error {
 	return db.connection.Delete(&model).Error
 }
 
-func (db *userConnection) VerifyCredential(email string, password string) interface{} {
-	var user models.User
-	res := db.connection.Where("email = ?", email).Take(&user)
-	if res.Error == nil {
-		return user
-	}
-	return nil
-}
+func (db *auditLogConn) Pagination(pagination *response.Pagination) (response.RepositoryResult, int) {
 
-func (db *userConnection) FindByEmail(email string) bool {
-	var user models.User
-	res := db.connection.Where("email = ?", email).Take(&user)
-	if res.Error == nil {
-		return false
-	}
-	return true
-
-}
-
-func hashAndSalt(pwd []byte) string {
-	hash, err := bcrypt.GenerateFromPassword(pwd, bcrypt.MinCost)
-	if err != nil {
-		log.Println(err)
-		panic("Failed to hash a password")
-	}
-	return string(hash)
-}
-
-func (db *userConnection) Pagination(pagination *helpers.Pagination) (response.RepositoryResult, int) {
-
-	var records []models.User
+	var records []models.AuditLog
 	var totalRows int64
 	totalPages, fromRow, toRow := 0, 0, 0
 
@@ -134,12 +89,12 @@ func (db *userConnection) Pagination(pagination *helpers.Pagination) (response.R
 			where = whereEquals + whereLike
 		}
 		find = find.Where(where)
-		errCount := db.connection.Model(&models.User{}).Where(where).Count(&totalRows).Error
+		errCount := db.connection.Model(&models.AuditLog{}).Where(where).Count(&totalRows).Error
 		if errCount != nil {
 			return response.RepositoryResult{Error: errCount}, totalPages
 		}
 	} else {
-		errCount := db.connection.Model(&models.User{}).Count(&totalRows).Error
+		errCount := db.connection.Model(&models.AuditLog{}).Count(&totalRows).Error
 		if errCount != nil {
 			return response.RepositoryResult{Error: errCount}, totalPages
 		}

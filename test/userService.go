@@ -3,8 +3,8 @@ package test
 import (
 	"errors"
 
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
-	test "github.com/hasrulrhul/service-repository-pattern-gin-golang/test/repository"
+	"github.com/hx71/api-started-gin-golang/models"
+	test "github.com/hx71/api-started-gin-golang/test/repository"
 )
 
 type UsersService struct {

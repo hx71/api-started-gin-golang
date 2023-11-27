@@ -3,8 +3,8 @@ package test
 import (
 	"testing"
 
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/test/repository"
+	"github.com/hx71/api-started-gin-golang/models"
+	"github.com/hx71/api-started-gin-golang/test/repository"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

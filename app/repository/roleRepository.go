@@ -5,8 +5,9 @@ import (
 	"math"
 	"strings"
 
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/helpers"
-	"github.com/hasrulrhul/service-repository-pattern-gin-golang/models"
+	"github.com/hx71/api-started-gin-golang/helpers"
+	"github.com/hx71/api-started-gin-golang/models"
+	"github.com/hx71/api-started-gin-golang/response"
 	"gorm.io/gorm"
 )
 
@@ -15,7 +16,7 @@ type RoleRepository interface {
 	Show(id string) models.Roles
 	Update(model models.Role) error
 	Delete(model models.Roles) error
-	Pagination(*helpers.Pagination) (RepositoryResult, int)
+	Pagination(*helpers.Pagination) (response.RepositoryResult, int)
 }
 
 type roleConnection struct {
@@ -52,7 +53,7 @@ func (db *roleConnection) Delete(model models.Roles) error {
 	return db.connection.Delete(&model).Error
 }
 
-func (db *roleConnection) Pagination(pagination *helpers.Pagination) (RepositoryResult, int) {
+func (db *roleConnection) Pagination(pagination *helpers.Pagination) (response.RepositoryResult, int) {
 
 	var records []models.Role
 	var totalRows int64
@@ -107,12 +108,12 @@ func (db *roleConnection) Pagination(pagination *helpers.Pagination) (Repository
 		find = find.Where(where)
 		errCount := db.connection.Model(&models.Role{}).Where(where).Count(&totalRows).Error
 		if errCount != nil {
-			return RepositoryResult{Error: errCount}, totalPages
+			return response.RepositoryResult{Error: errCount}, totalPages
 		}
 	} else {
 		errCount := db.connection.Model(&models.Role{}).Count(&totalRows).Error
 		if errCount != nil {
-			return RepositoryResult{Error: errCount}, totalPages
+			return response.RepositoryResult{Error: errCount}, totalPages
 		}
 	}
 
@@ -121,7 +122,7 @@ func (db *roleConnection) Pagination(pagination *helpers.Pagination) (Repository
 	// has error find data
 	errFind := find.Error
 	if errFind != nil {
-		return RepositoryResult{Error: errFind}, totalPages
+		return response.RepositoryResult{Error: errFind}, totalPages
 	}
 
 	pagination.Rows = records
@@ -150,5 +151,5 @@ func (db *roleConnection) Pagination(pagination *helpers.Pagination) (Repository
 	pagination.FromRow = fromRow
 	pagination.ToRow = toRow
 
-	return RepositoryResult{Result: pagination}, totalPages
+	return response.RepositoryResult{Result: pagination}, totalPages
 }
