@@ -5,40 +5,40 @@ import (
 	"math"
 	"strings"
 
-	"github.com/hx71/api-started-gin-golang/app/auditlog"
+	"github.com/hx71/api-started-gin-golang/app/role"
 	"github.com/hx71/api-started-gin-golang/models"
 	"github.com/hx71/api-started-gin-golang/response"
 	"gorm.io/gorm"
 )
 
-type auditLogConnection struct {
+type roleConnection struct {
 	connection *gorm.DB
 }
 
-func NewAuditLogRepository(connection *gorm.DB) auditlog.Repository {
-	return &auditLogConnection{connection}
+func NewRoleRepository(connection *gorm.DB) role.Repository {
+	return &roleConnection{connection}
 }
 
-func (db *auditLogConnection) Create(model models.AuditLog) error {
+func (db *roleConnection) Create(model models.Role) error {
 	return db.connection.Save(&model).Error
 }
 
-func (db *auditLogConnection) Show(id string) (role models.AuditLog) {
+func (db *roleConnection) Show(id string) (role models.Role) {
 	db.connection.Where("id = ?", id).First(&role)
 	return role
 }
 
-func (db *auditLogConnection) Update(model models.AuditLog) error {
+func (db *roleConnection) Update(model models.Role) error {
 	return db.connection.Updates(&model).Error
 }
 
-func (db *auditLogConnection) Delete(model models.AuditLog) error {
+func (db *roleConnection) Delete(model models.Role) error {
 	return db.connection.Delete(&model).Error
 }
 
-func (db *auditLogConnection) Pagination(pagination *response.Pagination) (response.RepositoryResult, int) {
+func (db *roleConnection) Pagination(pagination *response.Pagination) (response.RepositoryResult, int) {
 
-	var records []models.AuditLog
+	var records []models.Role
 	var totalRows int64
 	totalPages, fromRow, toRow := 0, 0, 0
 
@@ -89,12 +89,12 @@ func (db *auditLogConnection) Pagination(pagination *response.Pagination) (respo
 			where = whereEquals + whereLike
 		}
 		find = find.Where(where)
-		errCount := db.connection.Model(&models.AuditLog{}).Where(where).Count(&totalRows).Error
+		errCount := db.connection.Model(&models.Role{}).Where(where).Count(&totalRows).Error
 		if errCount != nil {
 			return response.RepositoryResult{Error: errCount}, totalPages
 		}
 	} else {
-		errCount := db.connection.Model(&models.AuditLog{}).Count(&totalRows).Error
+		errCount := db.connection.Model(&models.Role{}).Count(&totalRows).Error
 		if errCount != nil {
 			return response.RepositoryResult{Error: errCount}, totalPages
 		}

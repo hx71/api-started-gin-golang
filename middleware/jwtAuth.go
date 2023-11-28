@@ -5,13 +5,13 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
-	"github.com/hx71/api-started-gin-golang/app/service"
+	"github.com/hx71/api-started-gin-golang/app/jwtauth"
 	"github.com/hx71/api-started-gin-golang/config"
 	"github.com/hx71/api-started-gin-golang/response"
 )
 
 // AuthorizeJWT validates the token user given, return 401 if not valid
-func AuthorizeJWT(jwtService service.JWTService) gin.HandlerFunc {
+func AuthorizeJWT(jwtService jwtauth.JWTService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {

@@ -2,20 +2,41 @@ package engine
 
 import (
 	"log"
-	"os"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hx71/api-started-gin-golang/app/auditlog"
-	auditlogRepo "github.com/hx71/api-started-gin-golang/app/auditlog/repository"
-	rAuditlog "github.com/hx71/api-started-gin-golang/app/auditlog/routes"
-	"github.com/hx71/api-started-gin-golang/app/auditlog/usecase"
-	"github.com/hx71/api-started-gin-golang/app/controllers"
-	"github.com/hx71/api-started-gin-golang/app/repository"
-	"github.com/hx71/api-started-gin-golang/app/service"
-	"github.com/hx71/api-started-gin-golang/config"
-	"github.com/hx71/api-started-gin-golang/helpers"
+	"github.com/hx71/api-started-gin-golang/app/auth"
+	"github.com/hx71/api-started-gin-golang/app/jwtauth"
+	"github.com/hx71/api-started-gin-golang/app/menu"
+	"github.com/hx71/api-started-gin-golang/app/role"
+	"github.com/hx71/api-started-gin-golang/app/user"
+	"github.com/hx71/api-started-gin-golang/app/usermenu"
 	"github.com/hx71/api-started-gin-golang/middleware"
+
+	eAuth "github.com/hx71/api-started-gin-golang/app/auth/routes"
+	uAuth "github.com/hx71/api-started-gin-golang/app/auth/usecase"
+
+	rAuditlog "github.com/hx71/api-started-gin-golang/app/auditlog/repository"
+	eAuditlog "github.com/hx71/api-started-gin-golang/app/auditlog/routes"
+	uAuditlog "github.com/hx71/api-started-gin-golang/app/auditlog/usecase"
+
+	rMenu "github.com/hx71/api-started-gin-golang/app/menu/repository"
+	eMenu "github.com/hx71/api-started-gin-golang/app/menu/routes"
+	uMenu "github.com/hx71/api-started-gin-golang/app/menu/usecase"
+
+	rRole "github.com/hx71/api-started-gin-golang/app/role/repository"
+	eRole "github.com/hx71/api-started-gin-golang/app/role/routes"
+	uRole "github.com/hx71/api-started-gin-golang/app/role/usecase"
+
+	rUser "github.com/hx71/api-started-gin-golang/app/user/repository"
+	eUser "github.com/hx71/api-started-gin-golang/app/user/routes"
+	uUser "github.com/hx71/api-started-gin-golang/app/user/usecase"
+
+	rUserMenu "github.com/hx71/api-started-gin-golang/app/usermenu/repository"
+	eUserMenu "github.com/hx71/api-started-gin-golang/app/usermenu/routes"
+	uUserMenu "github.com/hx71/api-started-gin-golang/app/usermenu/usecase"
+
+	"github.com/hx71/api-started-gin-golang/config"
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 
@@ -34,27 +55,22 @@ func init() {
 var (
 	db *gorm.DB = config.SetupConnection()
 
-	jwtService service.JWTService = service.NewJWTService()
+	// repository
+	jwtAuth jwtauth.JWTService = jwtauth.NewJWTService()
 
-	users     repository.UserRepository     = repository.NewUserRepository(db)
-	roles     repository.RoleRepository     = repository.NewRoleRepository(db)
-	menus     repository.MenuRepository     = repository.NewMenuRepository(db)
-	userMenus repository.UserMenuRepository = repository.NewUserMenuRepository(db)
+	auditlogs auditlog.Repository = rAuditlog.NewAuditLogRepository(db)
+	menus     menu.Repository     = rMenu.NewMenuRepository(db)
+	roles     role.Repository     = rRole.NewRoleRepository(db)
+	users     user.Repository     = rUser.NewUserRepository(db)
+	usermenus usermenu.Repository = rUserMenu.NewUserMenuRepository(db)
 
-	authService     service.AuthService     = service.NewAuthService(users)
-	userService     service.UserService     = service.NewUserService(users)
-	roleService     service.RoleService     = service.NewRoleService(roles)
-	menuService     service.MenuService     = service.NewMenuService(menus)
-	userMenuService service.UserMenuService = service.NewUserMenuService(userMenus)
-
-	authController     controllers.AuthController     = controllers.NewAuthController(authService, jwtService)
-	userController     controllers.UserController     = controllers.NewUserController(userService, jwtService)
-	roleController     controllers.RoleController     = controllers.NewRoleController(roleService, jwtService)
-	menuController     controllers.MenuController     = controllers.NewMenuController(menuService, jwtService)
-	userMenuController controllers.UserMenuController = controllers.NewUserMenuController(userMenuService, jwtService)
-
-	auditlogs       auditlog.Repository = auditlogRepo.NewAuditLogRepository(db)
-	auditlogUsecase auditlog.Usecase    = usecase.NewAuditLogUsecase(auditlogs)
+	// usecase
+	authUsecase     auth.Usecase     = uAuth.NewAuthUsecase(users)
+	auditlogUsecase auditlog.Usecase = uAuditlog.NewAuditLogUsecase(auditlogs)
+	menuUsecase     menu.Usecase     = uMenu.NewMenuUsecase(menus)
+	roleUsecase     role.Usecase     = uRole.NewRoleUsecase(roles)
+	userUsecase     user.Usecase     = uUser.NewUserUsecase(users)
+	userMenuUsecase usermenu.Usecase = uUserMenu.NewUserMenuUsecase(usermenus)
 )
 
 func SetupRouter() *gin.Engine {
@@ -69,75 +85,44 @@ func SetupRouter() *gin.Engine {
 	r.Use(CORSMiddleware())
 
 	//Logging
-	r.Use(helpers.LoggerToFile())
+	// r.Use(helpers.LoggerToFile())
 
 	r.GET("/swagger/*any", swagger.WrapHandler(swaggerFiles.Handler))
 
 	// Routes
 	v1 := r.Group("api/v1")
 	{
+		v1.GET("/version", func(c *gin.Context) {
+			c.JSON(200, gin.H{
+				"message": "api version 1.0.0",
+			})
+		})
 
-		currentTime := time.Now()
-		crnTime := currentTime.Format("01-02-2006")
-		// log file
-		fileLog := "log-file-" + crnTime + ".log"
+		// // create log file
+		// currentTime := time.Now()
+		// crnTime := currentTime.Format("01-02-2006")
+		// fileLog := "log-file-" + crnTime + ".log"
+		// _, err := os.OpenFile("logging/"+fileLog, os.O_RDONLY, 0644)
+		// if err != nil {
+		// 	os.OpenFile("logging/"+fileLog, os.O_CREATE, 0644)
+		// }
 
-		_, err := os.OpenFile("logging/"+fileLog, os.O_RDONLY, 0644)
-		if err != nil {
-			os.OpenFile("logging/"+fileLog, os.O_CREATE, 0644)
-		}
+		// audit logs
+		eAuth.AuthHTTPHandler(v1, authUsecase, jwtAuth)
 
-		v1.GET("/version", authController.Version)
-
-		auth := v1.Group("auth")
+		routes := v1.Group("/", middleware.AuthorizeJWT(jwtAuth))
 		{
-			auth.POST("/login", authController.Login)
-			auth.POST("/register", authController.Register)
-			auth.GET("/logout", middleware.AuthorizeJWT(jwtService), authController.Logout)
-		}
-
-		routes := v1.Group("/")
-		// routes := v1.Group("/", middleware.AuthorizeJWT(jwtService))
-		{
-
 			// audit logs
-			rAuditlog.AuditLogHTTPHandler(routes, auditlogUsecase)
+			eAuditlog.AuditLogHTTPHandler(routes, auditlogUsecase)
+			// menus
+			eMenu.MenuHTTPHandler(routes, menuUsecase)
+			// roles
+			eRole.RoleHTTPHandler(routes, roleUsecase)
+			// user
+			eUser.UserHTTPHandler(routes, userUsecase)
+			// user menus
+			eUserMenu.UserMenuHTTPHandler(routes, userMenuUsecase)
 
-			users := routes.Group("/users")
-			{
-				users.GET("", userController.Index)
-				users.POST("", userController.Create)
-				users.GET("/:id", userController.Show)
-				users.PUT("/:id", userController.Update)
-				users.DELETE("/:id", userController.Delete)
-			}
-
-			role := routes.Group("/roles")
-			{
-				role.GET("", roleController.Index)
-				role.POST("", roleController.Create)
-				role.GET("/:id", roleController.Show)
-				role.PUT("/:id", roleController.Update)
-				role.DELETE("/:id", roleController.Delete)
-			}
-
-			menu := routes.Group("/menus")
-			{
-				menu.GET("", menuController.Index)
-				menu.POST("", menuController.Create)
-				menu.GET("/:id", menuController.Show)
-				menu.PUT("/:id", menuController.Update)
-				menu.DELETE("/:id", menuController.Delete)
-			}
-
-			userMenu := routes.Group("/user-menus")
-			{
-				userMenu.GET("", userMenuController.Index)
-				userMenu.POST("", userMenuController.Create)
-				userMenu.GET("/:id", userMenuController.Show)
-				userMenu.PUT("/:id", userMenuController.Update)
-				userMenu.DELETE("/:id", userMenuController.Delete)
-			}
 		}
 	}
 	return r

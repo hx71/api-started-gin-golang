@@ -56,7 +56,7 @@ func Menus() {
 	var menus = models.Menu{
 		ID:        "00000000-0000-0000-0000-000000000001",
 		MainMenu:  "Apps",
-		Parent:    "",
+		Parent:    0,
 		Name:      "Roles",
 		Icon:      "fa-gear",
 		Url:       "roles",
@@ -72,7 +72,7 @@ func Menus() {
 	var menus1 = models.Menu{
 		ID:        "00000000-0000-0000-0000-000000000002",
 		MainMenu:  "Apps",
-		Parent:    "",
+		Parent:    0,
 		Name:      "Menus",
 		Icon:      "fa-gear",
 		Url:       "menus",
@@ -88,7 +88,7 @@ func Menus() {
 	var menus2 = models.Menu{
 		ID:        "00000000-0000-0000-0000-000000000003",
 		MainMenu:  "Apps",
-		Parent:    "",
+		Parent:    0,
 		Name:      "Users",
 		Icon:      "fa-user",
 		Url:       "users",
