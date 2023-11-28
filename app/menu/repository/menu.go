@@ -5,42 +5,44 @@ import (
 	"math"
 	"strings"
 
-	"github.com/hx71/api-started-gin-golang/app/auditlog"
+	"github.com/hx71/api-started-gin-golang/app/menu"
+	"github.com/hx71/api-started-gin-golang/helpers"
 	"github.com/hx71/api-started-gin-golang/models"
 	"github.com/hx71/api-started-gin-golang/response"
 	"gorm.io/gorm"
 )
 
-type auditLogConnection struct {
+type menuConnection struct {
 	connection *gorm.DB
 }
 
-func NewAuditLogRepository(connection *gorm.DB) auditlog.Repository {
-	return &auditLogConnection{connection}
+func NewMenuRepository(connection *gorm.DB) menu.Repository {
+	return &menuConnection{connection}
 }
 
-func (db *auditLogConnection) Create(model models.AuditLog) error {
+func (db *menuConnection) Create(model models.Menu) error {
 	return db.connection.Save(&model).Error
 }
 
-func (db *auditLogConnection) Show(id string) (role models.AuditLog) {
+func (db *menuConnection) Show(id string) (role models.Menus) {
 	db.connection.Where("id = ?", id).First(&role)
 	return role
 }
 
-func (db *auditLogConnection) Update(model models.AuditLog) error {
+func (db *menuConnection) Update(model models.Menu) error {
+	fmt.Println(model.IsActive)
 	return db.connection.Updates(&model).Error
 }
 
-func (db *auditLogConnection) Delete(model models.AuditLog) error {
-	return db.connection.Delete(&model).Error
+func (db *menuConnection) Delete(id string) error {
+	return db.connection.Where("id = ?", id).Delete(&models.Menus{}).Error
 }
 
-func (db *auditLogConnection) Pagination(pagination *response.Pagination) (response.RepositoryResult, int) {
+func (db *menuConnection) Pagination(pagination *helpers.Pagination) (response.RepositoryResult, int) {
 
-	var records []models.AuditLog
+	var records []models.Menu
 	var totalRows int64
-	totalPages, fromRow, toRow := 0, 0, 0
+	totalPages := 0
 
 	offset := (pagination.Page - 1) * pagination.Limit
 
@@ -83,18 +85,20 @@ func (db *auditLogConnection) Pagination(pagination *response.Pagination) (respo
 				break
 			}
 		}
+
 		if whereEquals != "" && whereLike != "" {
 			where = whereEquals + " AND " + whereLike
 		} else {
 			where = whereEquals + whereLike
 		}
+
 		find = find.Where(where)
-		errCount := db.connection.Model(&models.AuditLog{}).Where(where).Count(&totalRows).Error
+		errCount := db.connection.Model(&models.Menu{}).Where(where).Count(&totalRows).Error
 		if errCount != nil {
 			return response.RepositoryResult{Error: errCount}, totalPages
 		}
 	} else {
-		errCount := db.connection.Model(&models.AuditLog{}).Count(&totalRows).Error
+		errCount := db.connection.Model(&models.Menu{}).Count(&totalRows).Error
 		if errCount != nil {
 			return response.RepositoryResult{Error: errCount}, totalPages
 		}
@@ -116,23 +120,20 @@ func (db *auditLogConnection) Pagination(pagination *response.Pagination) (respo
 
 	if pagination.Page == 0 {
 		// set from & to row on first page
-		fromRow = 1
-		toRow = pagination.Limit
+		pagination.FromRow = 1
+		pagination.ToRow = pagination.Limit
 	} else {
 		if pagination.Page <= totalPages {
 			// calculate from & to row
-			fromRow = ((pagination.Page - 1) * pagination.Limit) + 1
-			toRow = pagination.Page * pagination.Limit
+			pagination.FromRow = ((pagination.Page - 1) * pagination.Limit) + 1
+			pagination.ToRow = pagination.Page * pagination.Limit
 		}
 	}
 
-	if int64(toRow) > totalRows {
+	if int64(pagination.ToRow) > totalRows {
 		// set to row with total rows
-		toRow = int(totalRows)
+		pagination.ToRow = int(totalRows)
 	}
-
-	pagination.FromRow = fromRow
-	pagination.ToRow = toRow
 
 	return response.RepositoryResult{Result: pagination}, totalPages
 }
