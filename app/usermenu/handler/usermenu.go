@@ -13,11 +13,25 @@ import (
 	"github.com/hx71/api-started-gin-golang/response"
 )
 
-type UserMenuHandler struct {
+type UserMenuHandler interface {
+	Index(ctx *gin.Context)
+	Create(ctx *gin.Context)
+	Show(ctx *gin.Context)
+	Update(ctx *gin.Context)
+	Delete(ctx *gin.Context)
+}
+
+type userMenuHandler struct {
 	Usecase usermenu.Usecase
 }
 
-func (u *UserMenuHandler) Index(ctx *gin.Context) {
+func NewUserMenuHandler(usecase usermenu.Usecase) UserMenuHandler {
+	return &userMenuHandler{
+		Usecase: usecase,
+	}
+}
+
+func (u *userMenuHandler) Index(ctx *gin.Context) {
 	pagination := helpers.GeneratePaginationRequest(ctx)
 	res := u.Usecase.Pagination(ctx, pagination)
 	if !res.Status {
@@ -29,9 +43,8 @@ func (u *UserMenuHandler) Index(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-func (u *UserMenuHandler) Create(ctx *gin.Context) {
+func (u *userMenuHandler) Create(ctx *gin.Context) {
 	var req []dto.UserMenuCreateValidation
-	// req.ID = uuid.NewString()
 	err := ctx.ShouldBind(&req)
 	if err != nil {
 		response := response.ResponseError(config.MessageErr.FailedProcess, err.Error())
@@ -51,7 +64,7 @@ func (u *UserMenuHandler) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, response)
 }
 
-func (u *UserMenuHandler) Show(ctx *gin.Context) {
+func (u *userMenuHandler) Show(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var userMenu models.UserMenus = u.Usecase.Show(id)
 	if userMenu.ID == "" {
@@ -63,7 +76,7 @@ func (u *UserMenuHandler) Show(ctx *gin.Context) {
 	}
 }
 
-func (u *UserMenuHandler) Update(ctx *gin.Context) {
+func (u *userMenuHandler) Update(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var userMenu models.UserMenus = u.Usecase.Show(id)
 	if userMenu.ID == "" {
@@ -90,7 +103,7 @@ func (u *UserMenuHandler) Update(ctx *gin.Context) {
 	}
 }
 
-func (u *UserMenuHandler) Delete(ctx *gin.Context) {
+func (u *userMenuHandler) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var userMenu models.UserMenus = u.Usecase.Show(id)
 	if userMenu.ID == "" {

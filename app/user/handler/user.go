@@ -13,11 +13,25 @@ import (
 	"github.com/hx71/api-started-gin-golang/response"
 )
 
-type UserHandler struct {
+type UserHandler interface {
+	Index(ctx *gin.Context)
+	Create(ctx *gin.Context)
+	Show(ctx *gin.Context)
+	Update(ctx *gin.Context)
+	Delete(ctx *gin.Context)
+}
+
+type userHandler struct {
 	Usecase user.Usecase
 }
 
-func (u *UserHandler) Index(ctx *gin.Context) {
+func NewUserHandler(usecase user.Usecase) UserHandler {
+	return &userHandler{
+		Usecase: usecase,
+	}
+}
+
+func (u *userHandler) Index(ctx *gin.Context) {
 	pagination := helpers.GeneratePaginationRequest(ctx)
 	res := u.Usecase.Pagination(ctx, pagination)
 	if !res.Status {
@@ -29,7 +43,7 @@ func (u *UserHandler) Index(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-func (u *UserHandler) Create(ctx *gin.Context) {
+func (u *userHandler) Create(ctx *gin.Context) {
 	var req dto.UserCreateValidation
 	err := ctx.ShouldBind(&req)
 	if err != nil {
@@ -55,7 +69,7 @@ func (u *UserHandler) Create(ctx *gin.Context) {
 	// }
 }
 
-func (u *UserHandler) Show(ctx *gin.Context) {
+func (u *userHandler) Show(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var user models.User = u.Usecase.Show(id)
 	if (user == models.User{}) {
@@ -67,7 +81,7 @@ func (u *UserHandler) Show(ctx *gin.Context) {
 	}
 }
 
-func (u *UserHandler) Update(ctx *gin.Context) {
+func (u *userHandler) Update(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var user models.User = u.Usecase.Show(id)
 	if user.ID == "" {
@@ -95,7 +109,7 @@ func (u *UserHandler) Update(ctx *gin.Context) {
 	}
 }
 
-func (u *UserHandler) Delete(ctx *gin.Context) {
+func (u *userHandler) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var user models.User = u.Usecase.Show(id)
 	if user.ID == "" {

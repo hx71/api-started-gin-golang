@@ -13,11 +13,25 @@ import (
 	"github.com/hx71/api-started-gin-golang/response"
 )
 
-type RoleHandler struct {
+type RoleHandler interface {
+	Index(ctx *gin.Context)
+	Create(ctx *gin.Context)
+	Show(ctx *gin.Context)
+	Update(ctx *gin.Context)
+	Delete(ctx *gin.Context)
+}
+
+type roleHandler struct {
 	Usecase role.Usecase
 }
 
-func (u *RoleHandler) Index(ctx *gin.Context) {
+func NewRoleHandler(usecase role.Usecase) RoleHandler {
+	return &roleHandler{
+		Usecase: usecase,
+	}
+}
+
+func (u *roleHandler) Index(ctx *gin.Context) {
 	pagination := response.GeneratePaginationRequest(ctx)
 	res := u.Usecase.Pagination(ctx, pagination)
 	if !res.Status {
@@ -29,7 +43,7 @@ func (u *RoleHandler) Index(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-func (u *RoleHandler) Create(ctx *gin.Context) {
+func (u *roleHandler) Create(ctx *gin.Context) {
 	var req dto.RoleCreateValidation
 	req.ID = uuid.NewString()
 	err := ctx.ShouldBind(&req)
@@ -52,7 +66,7 @@ func (u *RoleHandler) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, response)
 }
 
-func (u *RoleHandler) Show(ctx *gin.Context) {
+func (u *roleHandler) Show(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var req models.Role = u.Usecase.Show(id)
 	if req.ID == "" {
@@ -64,7 +78,7 @@ func (u *RoleHandler) Show(ctx *gin.Context) {
 	}
 }
 
-func (u *RoleHandler) Update(ctx *gin.Context) {
+func (u *roleHandler) Update(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var req models.Role = u.Usecase.Show(id)
 	if req.ID == "" {
@@ -94,7 +108,7 @@ func (u *RoleHandler) Update(ctx *gin.Context) {
 	}
 }
 
-func (u *RoleHandler) Delete(ctx *gin.Context) {
+func (u *roleHandler) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var req models.Role = u.Usecase.Show(id)
 	if req.ID == "" {

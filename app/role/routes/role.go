@@ -7,7 +7,7 @@ import (
 )
 
 func RoleHTTPHandler(rg *gin.RouterGroup, usecases role.Usecase) {
-	handlers := &handler.RoleHandler{Usecase: usecases}
+	handlers := handler.NewRoleHandler(usecases)
 	r := rg.Group("/roles")
 	{
 		r.GET("", handlers.Index)

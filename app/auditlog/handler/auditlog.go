@@ -13,11 +13,24 @@ import (
 	"github.com/hx71/api-started-gin-golang/response"
 )
 
-type AuditLogHandler struct {
+type AuditLogHandler interface {
+	Index(ctx *gin.Context)
+	Create(ctx *gin.Context)
+	Show(ctx *gin.Context)
+	Delete(ctx *gin.Context)
+}
+
+type auditLogHandler struct {
 	Usecase auditlog.Usecase
 }
 
-func (u *AuditLogHandler) Index(ctx *gin.Context) {
+func NewAuditLogHandler(usecase auditlog.Usecase) AuditLogHandler {
+	return &auditLogHandler{
+		Usecase: usecase,
+	}
+}
+
+func (u *auditLogHandler) Index(ctx *gin.Context) {
 	pagination := response.GeneratePaginationRequest(ctx)
 	res := u.Usecase.Pagination(ctx, pagination)
 	if !res.Status {
@@ -29,7 +42,7 @@ func (u *AuditLogHandler) Index(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, response)
 }
 
-func (s *AuditLogHandler) Create(ctx *gin.Context) {
+func (s *auditLogHandler) Create(ctx *gin.Context) {
 	var req dto.AuditLogCreateValidation
 	req.ID = uuid.NewString()
 	err := ctx.ShouldBind(&req)
@@ -51,7 +64,7 @@ func (s *AuditLogHandler) Create(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, response)
 }
 
-func (s *AuditLogHandler) Show(ctx *gin.Context) {
+func (s *auditLogHandler) Show(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var role models.AuditLog = s.Usecase.Show(id)
 	if role.ID == "" {
@@ -63,7 +76,7 @@ func (s *AuditLogHandler) Show(ctx *gin.Context) {
 	}
 }
 
-func (s *AuditLogHandler) Delete(ctx *gin.Context) {
+func (s *auditLogHandler) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var auditlog models.AuditLog = s.Usecase.Show(id)
 	if auditlog.ID == "" {

@@ -26,7 +26,6 @@ type AuthHandler interface {
 
 type authHandler struct {
 	Usecase auth.Usecase
-	// Jwt     jwt.Usecase
 }
 
 func NewAuthHandler(usecase auth.Usecase) AuthHandler {
