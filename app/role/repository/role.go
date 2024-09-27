@@ -16,20 +16,22 @@ type roleConnection struct {
 }
 
 func NewRoleRepository(connection *gorm.DB) role.Repository {
-	return &roleConnection{connection}
+	return &roleConnection{
+		connection: connection,
+	}
 }
 
 func (db *roleConnection) Create(model models.Role) error {
-	return db.connection.Save(&model).Error
+	return db.connection.Create(&model).Error
 }
 
 func (db *roleConnection) Show(id string) (role models.Role) {
-	db.connection.Where("id = ?", id).First(&role)
+	db.connection.First(&role, "id = ?", id)
 	return role
 }
 
-func (db *roleConnection) Update(model models.Role) error {
-	return db.connection.Updates(&model).Error
+func (db *roleConnection) Update(role models.Role) error {
+	return db.connection.Updates(&role).Error
 }
 
 func (db *roleConnection) Delete(model models.Role) error {
@@ -37,97 +39,67 @@ func (db *roleConnection) Delete(model models.Role) error {
 }
 
 func (db *roleConnection) Pagination(pagination *response.Pagination) (response.RepositoryResult, int) {
-
+	// Initialize variables
 	var records []models.Role
 	var totalRows int64
 	totalPages, fromRow, toRow := 0, 0, 0
 
+	// Calculate offset
 	offset := (pagination.Page - 1) * pagination.Limit
 
-	// get data with limit, offset & order
-	find := db.connection.Limit(pagination.Limit).Offset(offset).Order(pagination.Sort)
+	// Generate where query
+	var whereConditions []string
+	for _, value := range pagination.Searchs {
+		column := value.Column
+		action := value.Action
+		query := value.Query
 
-	// generate where query
-	searchs := pagination.Searchs
-	whereEquals := ""
-	whereLike := ""
-	where := ""
-
-	if searchs != nil {
-		for _, value := range searchs {
-			column := value.Column
-			action := value.Action
-			query := value.Query
-
-			switch action {
-			case "equals":
-				if whereEquals == "" {
-					whereEquals = fmt.Sprintf(column + " = '" + query + "'")
-				} else {
-					whereEquals = fmt.Sprintf(whereEquals + " AND " + column + " = '" + query + "'")
-				}
-				break
-			case "contains":
-				if whereLike == "" {
-					whereLike = fmt.Sprintf("lower("+column+") LIKE  '%%%s%%'", strings.ToLower(query))
-				} else {
-					whereLike = whereLike + fmt.Sprintf("AND lower("+column+") LIKE  '%%%s%%'", strings.ToLower(query))
-				}
-				break
-			case "in":
-				if whereEquals == "" {
-					whereEquals = fmt.Sprintf(column + " IN (" + query + ")")
-				} else {
-					whereEquals = fmt.Sprintf(whereEquals + " AND " + column + " IN (" + query + ")")
-				}
-				break
-			}
-		}
-		if whereEquals != "" && whereLike != "" {
-			where = whereEquals + " AND " + whereLike
-		} else {
-			where = whereEquals + whereLike
-		}
-		find = find.Where(where)
-		errCount := db.connection.Model(&models.Role{}).Where(where).Count(&totalRows).Error
-		if errCount != nil {
-			return response.RepositoryResult{Error: errCount}, totalPages
-		}
-	} else {
-		errCount := db.connection.Model(&models.Role{}).Count(&totalRows).Error
-		if errCount != nil {
-			return response.RepositoryResult{Error: errCount}, totalPages
+		switch action {
+		case "equals":
+			whereConditions = append(whereConditions, fmt.Sprintf("%s = '%s'", column, query))
+		case "contains":
+			whereConditions = append(whereConditions, fmt.Sprintf("lower(%s) LIKE '%%%s%%'", column, strings.ToLower(query)))
+		case "in":
+			whereConditions = append(whereConditions, fmt.Sprintf("%s IN ('%s')", column, query))
 		}
 	}
+	// Build the where clause
+	where := strings.Join(whereConditions, " AND ")
 
-	find = find.Find(&records)
+	// Fetch total rows
+	errCount := db.connection.Model(&models.Role{}).Where(where).Count(&totalRows).Error
+	if errCount != nil {
+		return response.RepositoryResult{Error: errCount}, totalPages
+	}
 
-	// has error find data
-	errFind := find.Error
+	// Fetch records
+	find := db.connection.Limit(pagination.Limit).Offset(offset).Order(pagination.Sort).Where(where)
+	errFind := find.Find(&records).Error
 	if errFind != nil {
 		return response.RepositoryResult{Error: errFind}, totalPages
 	}
 
+	// Set pagination data
 	pagination.Rows = records
 	pagination.TotalRows = totalRows
 
-	// calculate total pages
+	// Calculate total pages
 	totalPages = int(math.Ceil(float64(totalRows) / float64(pagination.Limit)))
 
 	if pagination.Page == 0 {
-		// set from & to row on first page
+		// Set from & to row on first page
 		fromRow = 1
 		toRow = pagination.Limit
 	} else {
 		if pagination.Page <= totalPages {
-			// calculate from & to row
+			// Calculate from & to row
 			fromRow = ((pagination.Page - 1) * pagination.Limit) + 1
 			toRow = pagination.Page * pagination.Limit
 		}
 	}
 
 	if int64(toRow) > totalRows {
-		// set to row with total rows
+		// Set to row with total rows
 		toRow = int(totalRows)
 	}
 

@@ -9,7 +9,6 @@ import (
 	"github.com/hx71/api-started-gin-golang/app/dto"
 	"github.com/hx71/api-started-gin-golang/config"
 	"github.com/hx71/api-started-gin-golang/helpers"
-	"github.com/hx71/api-started-gin-golang/models"
 	"github.com/hx71/api-started-gin-golang/response"
 )
 
@@ -30,30 +29,31 @@ func NewAuditLogHandler(usecase auditlog.Usecase) AuditLogHandler {
 	}
 }
 
-func (u *auditLogHandler) Index(ctx *gin.Context) {
+func (h *auditLogHandler) Index(ctx *gin.Context) {
 	pagination := response.GeneratePaginationRequest(ctx)
-	res := u.Usecase.Pagination(ctx, pagination)
-	if !res.Status {
-		response := response.ResponseError("failed to get data audit-log", res.Message)
-		ctx.JSON(http.StatusBadRequest, response)
+	data := h.Usecase.Pagination(ctx, pagination)
+
+	if !data.Status {
+		errResponse := response.ResponseError("failed to get data audit-log", data.Message)
+		ctx.JSON(http.StatusBadRequest, errResponse)
 		return
 	}
-	response := response.ResponseSuccess("list of audit-log", res.Data)
-	ctx.JSON(http.StatusOK, response)
+
+	ctx.JSON(http.StatusOK, response.ResponseSuccess("list of audit-log", data.Data))
 }
 
 func (s *auditLogHandler) Create(ctx *gin.Context) {
-	var req dto.AuditLogCreateValidation
-	req.ID = uuid.NewString()
-	err := ctx.ShouldBind(&req)
-	if err != nil {
+	req := dto.AuditLogCreateValidation{
+		ID: uuid.NewString(),
+	}
+
+	if err := ctx.ShouldBind(&req); err != nil {
 		response := response.ResponseError(config.MessageErr.FailedProcess, err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	err = s.Usecase.Create(req)
-	if err != nil {
+	if err := s.Usecase.Create(req); err != nil {
 		go helpers.CreateLogError(uuid.NewString(), helpers.GetIP(ctx), "audit-log", "created audit-log", err.Error())
 		response := response.ResponseError("failed to process created", err.Error())
 		ctx.JSON(http.StatusBadRequest, response)
@@ -66,33 +66,37 @@ func (s *auditLogHandler) Create(ctx *gin.Context) {
 
 func (s *auditLogHandler) Show(ctx *gin.Context) {
 	id := ctx.Param("id")
-	var role models.AuditLog = s.Usecase.Show(id)
+	role := s.Usecase.Show(id)
+
 	if role.ID == "" {
 		res := response.ResponseError("Data not found", "No data with given id")
 		ctx.JSON(http.StatusNotFound, res)
-	} else {
-		response := response.ResponseSuccess("detail audit-log", role)
-		ctx.JSON(http.StatusOK, response)
+		return
 	}
+
+	ctx.JSON(http.StatusOK, response.ResponseSuccess("detail audit-log", role))
 }
 
 func (s *auditLogHandler) Delete(ctx *gin.Context) {
 	id := ctx.Param("id")
-	var auditlog models.AuditLog = s.Usecase.Show(id)
+	auditlog := s.Usecase.Show(id)
+
 	if auditlog.ID == "" {
 		response := response.ResponseError("data not found", "no data with given id")
 		ctx.JSON(http.StatusNotFound, response)
-	} else {
-		err := s.Usecase.Delete(auditlog)
-		if err != nil {
-			go helpers.CreateLogError(uuid.NewString(), helpers.GetIP(ctx), "audit-log", "deleted audit-log", err.Error())
-			response := response.ResponseError("failed to process deleted", err.Error())
-			ctx.JSON(http.StatusNotFound, response)
-			return
-		}
-		go helpers.CreateLogInfo(uuid.NewString(), helpers.GetIP(ctx), "audit-log", "deleted audit-log", "deleted success")
-		response := response.ResultSuccess("deleted success")
-		ctx.JSON(http.StatusOK, response)
+		return
 	}
 
+	err := s.Usecase.Delete(auditlog)
+	if err != nil {
+		go helpers.CreateLogError(uuid.NewString(), helpers.GetIP(ctx), "audit-log", "deleted audit-log", err.Error())
+
+		response := response.ResponseError("failed to process deleted", err.Error())
+		ctx.JSON(http.StatusNotFound, response)
+		return
+	}
+
+	go helpers.CreateLogInfo(uuid.NewString(), helpers.GetIP(ctx), "audit-log", "deleted audit-log", "deleted success")
+
+	ctx.JSON(http.StatusOK, response.ResultSuccess("deleted success"))
 }
