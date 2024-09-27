@@ -7,7 +7,7 @@ import (
 )
 
 func AuditLogHTTPHandler(rg *gin.RouterGroup, usecases auditlog.Usecase) {
-	handlers := &handler.AuditLogHandler{Usecase: usecases}
+	handlers := handler.NewAuditLogHandler(usecases)
 	r := rg.Group("/audit-log")
 	{
 		r.GET("", handlers.Index)

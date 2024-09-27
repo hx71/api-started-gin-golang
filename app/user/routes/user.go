@@ -7,7 +7,7 @@ import (
 )
 
 func UserHTTPHandler(rg *gin.RouterGroup, usecases user.Usecase) {
-	handlers := &handler.UserHandler{Usecase: usecases}
+	handlers := handler.NewUserHandler(usecases)
 	r := rg.Group("/users")
 	{
 		r.GET("", handlers.Index)

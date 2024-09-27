@@ -7,13 +7,12 @@ type Result struct {
 	Message string `json:"message"`
 }
 
-// BuildResponse method is to inject data value to dynamic success response
+// ResultSuccess returns a successful Result with the given message.
 func ResultSuccess(message string) Result {
-	res := Result{
+	return Result{
 		Status:  true,
 		Message: message,
 	}
-	return res
 }
 
 type Response struct {
@@ -22,14 +21,13 @@ type Response struct {
 	Data    interface{} `json:"data"`
 }
 
-// BuildResponse method is to inject data value to dynamic success response
+// ResponseSuccess creates a success response with a message and data.
 func ResponseSuccess(message string, data interface{}) Response {
-	res := Response{
+	return Response{
 		Status:  true,
 		Message: message,
 		Data:    data,
 	}
-	return res
 }
 
 type ResError struct {
@@ -38,13 +36,11 @@ type ResError struct {
 	Errors  interface{} `json:"errors"`
 }
 
-// BuildErrorResponse method is to inject data value to dynamic failed response
+// ResponseError returns a strongly typed ResError struct with the given message and error.
 func ResponseError(message string, err string) ResError {
-	splittedError := strings.Split(err, "\n")
-	res := ResError{
+	return ResError{
 		Status:  false,
 		Message: message,
-		Errors:  splittedError,
+		Errors:  strings.Split(err, "\n"),
 	}
-	return res
 }

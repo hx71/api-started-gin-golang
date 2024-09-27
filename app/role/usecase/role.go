@@ -24,8 +24,9 @@ func NewRoleUsecase(repo role.Repository) role.Usecase {
 }
 
 func (r *roleUsecase) Create(req dto.RoleCreateValidation) error {
-	role := models.Role{}
-	role.ID = uuid.NewString()
+	role := models.Role{
+		ID: uuid.NewString(),
+	}
 	err := smapping.FillStruct(&role, smapping.MapFields(&req))
 	if err != nil {
 		log.Fatalf("Failed map %v: ", err)

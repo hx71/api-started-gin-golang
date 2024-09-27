@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -34,9 +35,6 @@ func SetupConnection() *gorm.DB {
 	if err != nil {
 		panic("Failed to create a connection to database")
 	}
-	// delete tables
-
-	// migrate tables
 	return db
 }
 
@@ -46,5 +44,6 @@ func CloseConnection(db *gorm.DB) {
 	if err != nil {
 		panic("Failed to close connection from database")
 	}
+	log.Println("Success to close connection from database")
 	dbSQL.Close()
 }

@@ -7,7 +7,7 @@ import (
 )
 
 func MenuHTTPHandler(rg *gin.RouterGroup, usecases menu.Usecase) {
-	handlers := &handler.MenuHandler{Usecase: usecases}
+	handlers := handler.NewMenuHandler(usecases)
 	r := rg.Group("/menus")
 	{
 		r.GET("", handlers.Index)
@@ -16,5 +16,4 @@ func MenuHTTPHandler(rg *gin.RouterGroup, usecases menu.Usecase) {
 		r.PUT("/:id", handlers.Update)
 		r.DELETE("/:id", handlers.Delete)
 	}
-
 }
