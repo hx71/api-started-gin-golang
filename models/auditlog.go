@@ -8,7 +8,7 @@ import (
 
 type AuditLog struct {
 	ID          string `gorm:"primary_key, not null" json:"id"  binding:"omitempty,uuid"`
-	UserID      string `gorm:"not null;type:uuid;index" json:"user_id,omitempty"`
+	UserID      string `gorm:"not null,type:uuid,index" json:"user_id,omitempty"`
 	IPAddress   string `gorm:"not null" json:"ip_address"`
 	ServiceName string `gorm:"not null" json:"service_name"` // user
 	MethodName  string `gorm:"not null" json:"method_name"`  // create user

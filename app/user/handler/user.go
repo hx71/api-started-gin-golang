@@ -52,10 +52,6 @@ func (u *userHandler) Create(ctx *gin.Context) {
 		return
 	}
 
-	// if !u.Usecase.FindByEmail(req.Email) {
-	// 	response := response.ResponseError(config.MessageErr.FailedProcess, "duplicate email")
-	// 	ctx.JSON(http.StatusConflict, response)
-	// } else {
 	err = u.Usecase.Create(req)
 	if err != nil {
 		go helpers.CreateLogError(uuid.NewString(), helpers.GetIP(ctx), "users", "created users", err.Error())
@@ -66,14 +62,13 @@ func (u *userHandler) Create(ctx *gin.Context) {
 	go helpers.CreateLogInfo(uuid.NewString(), helpers.GetIP(ctx), "users", "created users", "created success")
 	response := response.ResultSuccess("created success")
 	ctx.JSON(http.StatusCreated, response)
-	// }
 }
 
 func (u *userHandler) Show(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var user models.User = u.Usecase.Show(id)
 	if (user == models.User{}) {
-		res := response.ResponseError("Data not found", "No data with given id")
+		res := response.ResponseError("data not found", "no data with given id")
 		ctx.JSON(http.StatusNotFound, res)
 	} else {
 		response := response.ResponseSuccess("detail user", user)

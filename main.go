@@ -18,19 +18,7 @@ import (
 // @BasePath /
 // @schemes http
 func main() {
-
-	// dbEvent := os.Getenv("DBEVENT")
-	// if dbEvent == "rollback" {
-	// 	migration.RunRollback()
-	// } else if dbEvent == "migration" {
-	// 	migration.RunMigrations()
-	// } else if dbEvent == "seeder" {
-	// 	migration.RunMigrations()
-	// 	seeder.RunSeeder()
-	// }
-
 	r := engine.SetupRouter()
-	r.Run(":" + os.Getenv("APP_PORT"))
 
 	if err := r.Run(fmt.Sprintf(":%s", os.Getenv("APP_PORT"))); err != nil {
 		log.Fatal(err)

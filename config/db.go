@@ -11,11 +11,17 @@ import (
 	"gorm.io/gorm"
 )
 
-//SetupConnection is creating a new connection to our database
+// SetupConnection is creating a new connection to our database
 func SetupConnection() *gorm.DB {
+
 	errEnv := godotenv.Load()
 	if errEnv != nil {
-		panic("Failed to load env file")
+		log.Println("Warning: Failed to load .env file, continuing with system ENV vars")
+	}
+
+	// ⬇️ Skip saat testing
+	if os.Getenv("GO_ENV") == "test" {
+		return nil
 	}
 
 	dbUser := os.Getenv("DB_USER")
@@ -24,9 +30,11 @@ func SetupConnection() *gorm.DB {
 	dbName := os.Getenv("DB_NAME")
 	dbPort := os.Getenv("DB_PORT")
 
+	fmt.Println("cek : ", dbHost)
+
 	// // connectio mysql
-	// dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", dbUser, dbPass, dbHost, dbPort, dbName)
-	// db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	//dsn := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local", dbUser, dbPass, dbHost, dbPort, dbName)
+	//db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 
 	// connectio postgres
 	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai", dbHost, dbUser, dbPass, dbName, dbPort)
@@ -38,7 +46,7 @@ func SetupConnection() *gorm.DB {
 	return db
 }
 
-//CloseConnection method is closing a connection between your app and your db
+// CloseConnection method is closing a connection between your app and your db
 func CloseConnection(db *gorm.DB) {
 	dbSQL, err := db.DB()
 	if err != nil {

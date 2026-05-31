@@ -52,7 +52,7 @@ func (u *authHandler) Login(ctx *gin.Context) {
 			Email:       user.Email,
 			AccessToken: generatedToken,
 		}
-		response := response.ResponseSuccess("login successfull!", tokenResponse)
+		response := response.ResponseSuccess("login successful!", tokenResponse)
 		ctx.JSON(http.StatusOK, response)
 		return
 	}
@@ -75,7 +75,7 @@ func (u *authHandler) Register(ctx *gin.Context) {
 		ctx.JSON(http.StatusConflict, response)
 	} else {
 		createdUser := u.Usecase.CreateUser(req)
-		response := response.ResponseSuccess("register successfull!", createdUser)
+		response := response.ResponseSuccess("register successful!", createdUser)
 		ctx.JSON(http.StatusCreated, response)
 	}
 }

@@ -1,7 +1,4 @@
 {
-    "schemes": [
-        "http"
-    ],
     "swagger": "2.0",
     "info": {
         "description": "This is a document for API use in [Backend API Services]",
@@ -9,8 +6,6 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:1234",
-    "basePath": "/",
     "paths": {
         "/api/v1/menus": {
             "post": {
