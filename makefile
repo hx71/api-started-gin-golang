@@ -2,7 +2,10 @@ GOSOURCEFILE="./main.go"
 SWAGDOCS="./docs/swagger"
 
 t:
-	go test ./test -v
+	GO_ENV=test go test ./... -v
+
+test:
+	GO_ENV=test go test ./... -v
 
 r:
 	go run main.go

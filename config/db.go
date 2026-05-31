@@ -16,13 +16,13 @@ func SetupConnection() *gorm.DB {
 
 	errEnv := godotenv.Load()
 	if errEnv != nil {
-		panic("Failed to load env files")
+		log.Println("Warning: Failed to load .env file, continuing with system ENV vars")
 	}
 
-	// // ⬇️ Skip saat testing
-	// if os.Getenv("GO_ENV") == "test" {
-	// 	return nil
-	// }
+	// ⬇️ Skip saat testing
+	if os.Getenv("GO_ENV") == "test" {
+		return nil
+	}
 
 	dbUser := os.Getenv("DB_USER")
 	dbPass := os.Getenv("DB_PASS")
