@@ -25,3 +25,17 @@ make run
 **```**
 http://localhost:1234/api/v1
 **```**
+
+
+## endpoint swagger
+
+**```**
+http://localhost:1234/swagger/index.html
+**```**
+
+
+## running unit test
+
+**```**
+go test ./test -v
+**```**

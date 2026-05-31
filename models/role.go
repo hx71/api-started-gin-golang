@@ -10,6 +10,7 @@ type Role struct {
 	ID        string         `gorm:"primary_key, not null" json:"id"  binding:"omitempty,uuid"`
 	Code      string         `gorm:"unique" json:"code" binding:"required"`
 	Name      string         `json:"name"`
+	Tanggal   time.Time      `json:"tanggal"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `gorm:"index" json:"deleted_at"`

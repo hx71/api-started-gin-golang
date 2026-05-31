@@ -1,8 +1,6 @@
 package engine
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
 	"github.com/hx71/api-started-gin-golang/app/auditlog"
 	"github.com/hx71/api-started-gin-golang/app/auth"
@@ -37,20 +35,12 @@ import (
 	uUserMenu "github.com/hx71/api-started-gin-golang/app/usermenu/usecase"
 
 	"github.com/hx71/api-started-gin-golang/config"
-	"github.com/joho/godotenv"
 	"gorm.io/gorm"
 
 	_ "github.com/hx71/api-started-gin-golang/docs/swagger"
 	swaggerFiles "github.com/swaggo/files"
 	swagger "github.com/swaggo/gin-swagger"
 )
-
-func init() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-}
 
 var (
 	db *gorm.DB = config.SetupConnection()
@@ -78,14 +68,8 @@ func SetupRouter() *gin.Engine {
 
 	// Gin instance
 	r := gin.Default()
-	// if !envConfig.Debug {
-	// 	gin.SetMode(gin.ReleaseMode)
-	// }
-	r.Use(gin.Recovery())
+	r.Use(gin.CustomRecovery(middleware.PanicRecoveryHandler))
 	r.Use(CORSMiddleware())
-
-	//Logging
-	// r.Use(helpers.LoggerToFile())
 
 	r.GET("/swagger/*any", swagger.WrapHandler(swaggerFiles.Handler))
 
@@ -97,15 +81,6 @@ func SetupRouter() *gin.Engine {
 				"message": "api version 1.0.0",
 			})
 		})
-
-		// // create log file
-		// currentTime := time.Now()
-		// crnTime := currentTime.Format("01-02-2006")
-		// fileLog := "log-file-" + crnTime + ".log"
-		// _, err := os.OpenFile("logging/"+fileLog, os.O_RDONLY, 0644)
-		// if err != nil {
-		// 	os.OpenFile("logging/"+fileLog, os.O_CREATE, 0644)
-		// }
 
 		// audit logs
 		eAuth.AuthHTTPHandler(v1, authUsecase, jwtAuth)
@@ -122,7 +97,6 @@ func SetupRouter() *gin.Engine {
 			eUser.UserHTTPHandler(routes, userUsecase)
 			// user menus
 			eUserMenu.UserMenuHTTPHandler(routes, userMenuUsecase)
-
 		}
 	}
 	return r
@@ -134,10 +108,8 @@ func CORSMiddleware() gin.HandlerFunc {
 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, DELETE, OPTIONS, PATCH")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, HEAD, POST")
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
-			//c.Next()
 			return
 		}
 		c.Next()

@@ -68,7 +68,7 @@ func (u *userMenuHandler) Show(ctx *gin.Context) {
 	id := ctx.Param("id")
 	var userMenu models.UserMenus = u.Usecase.Show(id)
 	if userMenu.ID == "" {
-		res := response.ResponseError("Data not found", "No data with given id")
+		res := response.ResponseError("data not found", "no data with given id")
 		ctx.JSON(http.StatusNotFound, res)
 	} else {
 		response := response.ResponseSuccess("detail user menu", userMenu)

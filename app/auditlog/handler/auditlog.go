@@ -69,7 +69,7 @@ func (s *auditLogHandler) Show(ctx *gin.Context) {
 	role := s.Usecase.Show(id)
 
 	if role.ID == "" {
-		res := response.ResponseError("Data not found", "No data with given id")
+		res := response.ResponseError("data not found", "no data with given id")
 		ctx.JSON(http.StatusNotFound, res)
 		return
 	}

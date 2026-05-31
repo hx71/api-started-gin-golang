@@ -19,11 +19,11 @@ func CreateLogInfo(userID, ipAddress, serviceName, methodName, metadata string) 
 	var logs models.AuditLog
 	logs.ID = uuid.NewString()
 	logs.UserID = userID
-	logs.IPAddress = ipAddress
-	logs.ServiceName = serviceName
-	logs.MethodName = methodName
-	logs.Metadata = metadata
-	logs.Level = "Info"
+	// logs.IPAddress = ipAddress
+	// logs.ServiceName = serviceName
+	// logs.MethodName = methodName
+	// logs.Metadata = metadata
+	// logs.Level = "Info"
 	res := dbx.Save(&logs)
 	fmt.Println(res)
 }
@@ -32,11 +32,11 @@ func CreateLogError(userID, ipAddress, serviceName, methodName, metadata string)
 	var logs models.AuditLog
 	logs.ID = uuid.NewString()
 	logs.UserID = userID
-	logs.IPAddress = ipAddress
-	logs.ServiceName = serviceName
-	logs.MethodName = methodName
-	logs.Metadata = metadata
-	logs.Level = "Error"
+	// logs.IPAddress = ipAddress
+	// logs.ServiceName = serviceName
+	// logs.MethodName = methodName
+	// logs.Metadata = metadata
+	// logs.Level = "Error"
 	res := dbx.Save(&logs)
 	fmt.Println(res)
 }

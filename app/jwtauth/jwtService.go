@@ -7,7 +7,7 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
-//JWTService is a contract of what jwtService can do
+// JWTService is a contract of what jwtService can do
 type JWTService interface {
 	ValidateToken(token string) (*jwt.Token, error)
 }
@@ -22,7 +22,7 @@ type jwtService struct {
 	issuer    string
 }
 
-//NewJWTService method is creates a new instance of JWTService
+// NewJWTService method is creates a new instance of JWTService
 func NewJWTService() JWTService {
 	return &jwtService{
 		issuer:    "secret",

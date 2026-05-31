@@ -1,6 +1,9 @@
 GOSOURCEFILE="./main.go"
 SWAGDOCS="./docs/swagger"
 
+t:
+	go test ./test -v
+
 r:
 	go run main.go
 
